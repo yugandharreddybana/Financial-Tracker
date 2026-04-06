@@ -23,41 +23,23 @@ const CURRENCIES = [
   { code: "CNY", symbol: "¥", name: "Chinese Yuan", flag: "🇨🇳" },
   { code: "AED", symbol: "د.إ", name: "UAE Dirham", flag: "🇦🇪" },
   { code: "NGN", symbol: "₦", name: "Nigerian Naira", flag: "🇳🇬" },
-  { code: "KES", symbol: "KSh", name: "Kenyan Shilling", flag: "🇰🇪" },
   { code: "BRL", symbol: "R$", name: "Brazilian Real", flag: "🇧🇷" },
-  { code: "MXN", symbol: "$", name: "Mexican Peso", flag: "🇲🇽" },
-  { code: "ZAR", symbol: "R", name: "South African Rand", flag: "🇿🇦" },
   { code: "SGD", symbol: "S$", name: "Singapore Dollar", flag: "🇸🇬" },
-  { code: "HKD", symbol: "HK$", name: "Hong Kong Dollar", flag: "🇭🇰" },
   { code: "SEK", symbol: "kr", name: "Swedish Krona", flag: "🇸🇪" },
-  { code: "NOK", symbol: "kr", name: "Norwegian Krone", flag: "🇳🇴" },
-  { code: "DKK", symbol: "kr", name: "Danish Krone", flag: "🇩🇰" },
   { code: "PLN", symbol: "zł", name: "Polish Zloty", flag: "🇵🇱" },
   { code: "TRY", symbol: "₺", name: "Turkish Lira", flag: "🇹🇷" },
-  { code: "THB", symbol: "฿", name: "Thai Baht", flag: "🇹🇭" },
-  { code: "MYR", symbol: "RM", name: "Malaysian Ringgit", flag: "🇲🇾" },
-  { code: "IDR", symbol: "Rp", name: "Indonesian Rupiah", flag: "🇮🇩" },
-  { code: "ILS", symbol: "₪", name: "Israeli Shekel", flag: "🇮🇱" },
-  { code: "HUF", symbol: "Ft", name: "Hungarian Forint", flag: "🇭🇺" },
-  { code: "RON", symbol: "lei", name: "Romanian Leu", flag: "🇷🇴" },
-  { code: "CZK", symbol: "Kč", name: "Czech Koruna", flag: "🇨🇿" },
 ];
 
-const COLORS = ["#3B82F6", "#10B981", "#8B5CF6", "#F97316", "#EF4444", "#EC4899", "#14B8A6", "#F59E0B", "#6366F1", "#84CC16"];
-const ICONS = ["🏦", "💳", "💰", "🏧", "💵", "🏛️", "💼", "🌍", "🏠", "⭐"];
+const COLORS = ["#3B82F6","#10B981","#8B5CF6","#F97316","#EF4444","#EC4899","#14B8A6","#F59E0B","#6366F1","#84CC16"];
+const ICONS = ["🏦","💳","💰","🏧","💵","🏛️","💼","🌍","🏠","⭐"];
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
   currencyCode: z.string().min(3),
   icon: z.string(),
   color: z.string(),
-  currentBalance: z
-    .string()
-    .optional()
-    .transform((v) => (v && v.trim().length ? Number(v) : 0))
-    .refine((v) => !Number.isNaN(v), { message: "Must be a number" }),
+  currentBalance: z.string().optional().transform((v) => (v && v.trim().length ? Number(v) : 0)).refine((v) => !Number.isNaN(v), { message: "Must be a number" }),
 });
-
 type F = z.infer<typeof schema>;
 
 const BankAccountsPage: React.FC = () => {
@@ -67,14 +49,7 @@ const BankAccountsPage: React.FC = () => {
   const [deleteAcc, setDeleteAcc] = useState<BankAccount | null>(null);
   const [currSearch, setCurrSearch] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<F>({
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<F>({
     resolver: zodResolver(schema),
     defaultValues: { icon: "🏦", color: "#3B82F6", currencyCode: "EUR", currentBalance: 0 },
   });
@@ -87,133 +62,82 @@ const BankAccountsPage: React.FC = () => {
     setLoading(true);
     try {
       const { data } = await bankAccountService.getAll();
-      setAccounts(data);
-    } finally {
-      setLoading(false);
-    }
+      setAccounts(Array.isArray(data) ? data : []);
+    } catch { setAccounts([]); }
+    finally { setLoading(false); }
   };
-
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const filteredCurrs = CURRENCIES.filter(
-    (c) =>
-      c.code.toLowerCase().includes(currSearch.toLowerCase()) ||
-      c.name.toLowerCase().includes(currSearch.toLowerCase())
+    (c) => c.code.toLowerCase().includes(currSearch.toLowerCase()) || c.name.toLowerCase().includes(currSearch.toLowerCase())
   );
 
   const onSubmit = async (data: F) => {
     try {
-      await bankAccountService.create({
-        name: data.name,
-        icon: data.icon,
-        color: data.color,
-        currencyCode: data.currencyCode,
-        currentBalance: data.currentBalance,
-      });
-      toast.success("Account added!");
-      reset();
-      setShowModal(false);
-      setCurrSearch("");
-      load();
-    } catch {
-      toast.error("Failed to add account");
-    }
+      await bankAccountService.create({ name: data.name, icon: data.icon, color: data.color, currencyCode: data.currencyCode, currentBalance: data.currentBalance });
+      toast.success("Account added!"); reset(); setShowModal(false); setCurrSearch(""); load();
+    } catch { toast.error("Failed to add account"); }
   };
 
   const handleDelete = async () => {
     if (!deleteAcc) return;
-    await bankAccountService.delete(deleteAcc.id);
-    toast.success("Deleted");
-    setDeleteAcc(null);
-    load();
+    try { await bankAccountService.delete(deleteAcc.id); toast.success("Deleted"); }
+    catch { toast.error("Failed to delete"); }
+    setDeleteAcc(null); load();
   };
 
-  const totalBalance = accounts.reduce((sum, a) => sum + (a.currentBalance || 0), 0);
+  const safeAccounts = Array.isArray(accounts) ? accounts : [];
+  const totalBalance = safeAccounts.reduce((sum, a) => sum + (Number(a.currentBalance) || 0), 0);
 
   return (
     <div>
       <PageHeader
         title="Bank Accounts"
         subtitle="Manage your accounts and starting balances across the world."
-        actions={
-          <button onClick={() => setShowModal(true)} className="btn-primary">
-            <Plus size={15} /> Add Account
-          </button>
-        }
+        actions={<button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15} /> Add Account</button>}
       />
 
-      {accounts.length > 0 && (
+      {safeAccounts.length > 0 && (
         <div className="mb-4 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-          <span>
-            You have {accounts.length} account{accounts.length > 1 ? "s" : ""}.
-          </span>
-          <span>
-            Total starting balance: <span className="font-semibold">€{totalBalance.toFixed(2)}</span>
-          </span>
+          <span>You have {safeAccounts.length} account{safeAccounts.length > 1 ? "s" : ""}.</span>
+          <span>Total starting balance: <span className="font-semibold">€{totalBalance.toFixed(2)}</span></span>
         </div>
       )}
 
       {loading ? (
         <LoadingSpinner size="lg" className="py-32" />
-      ) : accounts.length === 0 ? (
+      ) : safeAccounts.length === 0 ? (
         <EmptyState
           icon={Landmark}
           title="No bank accounts"
           description="Add your first account and set its current balance to start tracking."
-          action={
-            <button onClick={() => setShowModal(true)} className="btn-primary">
-              <Plus size={15} /> Add Account
-            </button>
-          }
+          action={<button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15} /> Add Account</button>}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((acc) => (
+          {safeAccounts.map((acc) => (
             <div key={acc.id} className="card p-5 relative group">
-              <button
-                onClick={() => setDeleteAcc(acc)}
-                className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-              >
+              <button onClick={() => setDeleteAcc(acc)} className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
                 <Trash2 size={14} />
               </button>
               <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl"
-                  style={{ backgroundColor: acc.color + "20" }}
-                >
-                  {acc.icon}
-                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: acc.color + "20" }}>{acc.icon}</div>
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-slate-50 text-sm">
-                    {acc.name}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {acc.country || "Global"}
-                  </p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-50 text-sm">{acc.name}</p>
+                  <p className="text-xs text-slate-400">{acc.country || "Global"}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <p className="text-[11px] text-slate-400 uppercase tracking-wide">Currency</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                    {acc.currencySymbol} <span className="text-slate-500 text-xs">{acc.currencyCode}</span>
-                  </p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{acc.currencySymbol} <span className="text-slate-500 text-xs">{acc.currencyCode}</span></p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] text-slate-400 uppercase tracking-wide">Current balance</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                    {acc.currencySymbol}
-                    {typeof acc.currentBalance === "number"
-                      ? acc.currentBalance.toFixed(2)
-                      : Number(acc.currentBalance || 0).toFixed(2)}
-                  </p>
+                  <p className="text-[11px] text-slate-400 uppercase tracking-wide">Balance</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{acc.currencySymbol}{Number(acc.currentBalance || 0).toFixed(2)}</p>
                 </div>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Added on {new Date(acc.createdAt).toLocaleDateString()}
-              </p>
+              <p className="text-[11px] text-slate-400 mt-1">Added on {new Date(acc.createdAt).toLocaleDateString()}</p>
             </div>
           ))}
         </div>
@@ -221,63 +145,25 @@ const BankAccountsPage: React.FC = () => {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => {
-              setShowModal(false);
-              setCurrSearch("");
-            }}
-          />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setShowModal(false); setCurrSearch(""); }} />
           <div className="relative bg-white dark:bg-slate-950 rounded-2xl shadow-xl w-full max-w-md animate-fade-in max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white/90 dark:bg-slate-950/90">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">
-                Add Bank Account
-              </h2>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setCurrSearch("");
-                }}
-                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
-              >
-                <X size={18} />
-              </button>
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Add Bank Account</h2>
+              <button onClick={() => { setShowModal(false); setCurrSearch(""); }} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               <div>
                 <label className="label">Account Name *</label>
-                <input
-                  {...register("name")}
-                  className="input"
-                  placeholder="e.g. AIB Current Account"
-                />
-                {errors.name && (
-                  <p className="text-xs text-red-500 mt-1">Required</p>
-                )}
+                <input {...register("name")} className="input" placeholder="e.g. AIB Current Account" />
+                {errors.name && <p className="text-xs text-red-500 mt-1">Required</p>}
               </div>
               <div>
                 <label className="label">Currency *</label>
-                <input
-                  value={currSearch}
-                  onChange={(e) => setCurrSearch(e.target.value)}
-                  className="input mb-2"
-                  placeholder="Search currency..."
-                />
+                <input value={currSearch} onChange={(e) => setCurrSearch(e.target.value)} className="input mb-2" placeholder="Search currency..." />
                 <div className="max-h-40 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredCurrs.map((c) => (
-                    <button
-                      type="button"
-                      key={c.code}
-                      onClick={() => {
-                        setValue("currencyCode", c.code);
-                        setCurrSearch(c.code);
-                      }}
-                      className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 text-left transition-colors ${
-                        selectedCurr === c.code
-                          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
-                          : ""
-                      }`}
-                    >
+                    <button type="button" key={c.code} onClick={() => { setValue("currencyCode", c.code); setCurrSearch(c.code); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 text-left transition-colors ${selectedCurr === c.code ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300" : ""}`}>
                       <span className="text-xl">{c.flag}</span>
                       <span className="font-semibold">{c.code}</span>
                       <span className="text-slate-500 text-xs">{c.name}</span>
@@ -289,40 +175,17 @@ const BankAccountsPage: React.FC = () => {
               <div>
                 <label className="label">Current balance</label>
                 <div className="relative">
-                  <input
-                    {...register("currentBalance" as const)}
-                    className="input pr-10"
-                    placeholder="e.g. 1250.00"
-                  />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-xs text-slate-400">
-                    {selectedCurr || "EUR"}
-                  </span>
+                  <input {...register("currentBalance" as const)} className="input pr-10" placeholder="e.g. 1250.00" />
+                  <span className="absolute inset-y-0 right-3 flex items-center text-xs text-slate-400">{selectedCurr || "EUR"}</span>
                 </div>
-                {errors.currentBalance && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {String(errors.currentBalance.message)}
-                  </p>
-                )}
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Set the current balance so tracking starts from your real value, not zero.
-                </p>
+                {errors.currentBalance && <p className="text-xs text-red-500 mt-1">{String(errors.currentBalance.message)}</p>}
               </div>
               <div>
                 <label className="label">Icon</label>
                 <div className="flex flex-wrap gap-2">
                   {ICONS.map((i) => (
-                    <button
-                      type="button"
-                      key={i}
-                      onClick={() => setValue("icon", i)}
-                      className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${
-                        selectedIcon === i
-                          ? "ring-2 ring-indigo-500 bg-indigo-50"
-                          : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
-                    >
-                      {i}
-                    </button>
+                    <button type="button" key={i} onClick={() => setValue("icon", i)}
+                      className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${selectedIcon === i ? "ring-2 ring-indigo-500 bg-indigo-50" : "hover:bg-slate-100 dark:hover:bg-slate-800"}`}>{i}</button>
                   ))}
                 </div>
               </div>
@@ -330,52 +193,21 @@ const BankAccountsPage: React.FC = () => {
                 <label className="label">Color</label>
                 <div className="flex flex-wrap gap-2">
                   {COLORS.map((c) => (
-                    <button
-                      type="button"
-                      key={c}
-                      onClick={() => setValue("color", c)}
-                      className={`w-8 h-8 rounded-lg transition-all ${
-                        selectedColor === c
-                          ? "ring-2 ring-offset-2 ring-slate-400 scale-110"
-                          : ""
-                      }`}
-                      style={{ backgroundColor: c }}
-                    />
+                    <button type="button" key={c} onClick={() => setValue("color", c)}
+                      className={`w-8 h-8 rounded-lg transition-all ${selectedColor === c ? "ring-2 ring-offset-2 ring-slate-400 scale-110" : ""}`} style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
               <div className="flex gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setCurrSearch("");
-                  }}
-                  className="btn-secondary flex-1"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary flex-1"
-                >
-                  {isSubmitting ? <LoadingSpinner size="sm" /> : "Add Account"}
-                </button>
+                <button type="button" onClick={() => { setShowModal(false); setCurrSearch(""); }} className="btn-secondary flex-1">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="btn-primary flex-1">{isSubmitting ? <LoadingSpinner size="sm" /> : "Add Account"}</button>
               </div>
             </form>
           </div>
         </div>
       )}
-      <ConfirmDialog
-        isOpen={!!deleteAcc}
-        title="Delete Account"
-        message={`Delete "${deleteAcc?.name}"? This won't delete existing transactions.`}
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteAcc(null)}
-      />
+      <ConfirmDialog isOpen={!!deleteAcc} title="Delete Account" message={`Delete "${deleteAcc?.name}"? This won't delete existing transactions.`} onConfirm={handleDelete} onCancel={() => setDeleteAcc(null)} />
     </div>
   );
 };
-
 export default BankAccountsPage;

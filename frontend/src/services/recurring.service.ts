@@ -1,2 +1,18 @@
 import api from "./api";
-export const recurringService = { getAll: () => api.get("/recurring"), create: (d:any) => api.post("/recurring", d), delete: (id:number) => api.delete(`/recurring/${id}`), processDue: () => api.post("/recurring/process-due") };
+import { RecurringTransaction } from "../types";
+
+const toArray = (data: any): RecurringTransaction[] => {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.content)) return data.content;
+  return [];
+};
+
+export const recurringService = {
+  getAll: async (): Promise<{ data: RecurringTransaction[] }> => {
+    const res = await api.get<any>("/recurring");
+    return { data: toArray(res.data) };
+  },
+  create: (d: any) => api.post("/recurring", d),
+  delete: (id: number) => api.delete(`/recurring/${id}`),
+  processDue: () => api.post("/recurring/process-due"),
+};

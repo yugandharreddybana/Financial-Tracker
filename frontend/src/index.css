@@ -7,15 +7,11 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
-}
-
-.dark body {
-  @apply bg-slate-950 text-slate-100;
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased;
 }
 
 #root {
-  @apply min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
+  @apply min-h-screen;
 }
 
 .card {
@@ -38,6 +34,10 @@ body {
   @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/60 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
 }
 
+.label {
+  @apply block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1;
+}
+
 .table-basic {
   @apply min-w-full text-sm;
 }
@@ -54,10 +54,7 @@ body {
   @apply px-3 py-2 align-middle text-xs text-slate-700 dark:text-slate-100 border-t border-slate-100 dark:border-slate-800;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
   @apply bg-slate-300 dark:bg-slate-700 rounded-full;

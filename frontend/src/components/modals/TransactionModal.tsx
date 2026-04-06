@@ -121,7 +121,16 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
 
   const onSubmit = async (data: F) => {
     try {
-      const payload = { ...data, bankAccountId: data.bankAccountId || undefined };
+      // Send only fields accepted by the /transactions API.
+      const payload = {
+        description: data.description,
+        amount: data.amount,
+        date: data.date,
+        type: data.type,
+        categoryId: data.categoryId,
+        bankAccountId: data.bankAccountId || undefined,
+        note: data.note,
+      };
 
       if (transaction) {
         await dispatch(updateTransaction({ id: transaction.id, req: payload })).unwrap();
@@ -152,8 +161,8 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
       }
 
       onClose();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err: any) {
+      toast.error(typeof err === "string" ? err : err?.message || "Something went wrong");
     }
   };
 

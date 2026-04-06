@@ -4,7 +4,7 @@ import { useAppSelector } from "./hooks/useAppDispatch";
 import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashboardPage.tsx";
 import IncomeAnalyticsPage from "./pages/IncomeAnalyticsPage";
 import SubscriptionsPage from "./pages/SubscriptionsPage";
 import TransactionsPage from "./pages/TransactionsPage";
@@ -27,6 +27,7 @@ const App: React.FC = () => {
       <Route path="/register" element={!token ? <RegisterPage /> : <Navigate to="/dashboard" replace />} />
       <Route element={<AppLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/income" element={<IncomeAnalyticsPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/bank-accounts" element={<BankAccountsPage />} />
         <Route path="/budgets" element={<BudgetsPage />} />

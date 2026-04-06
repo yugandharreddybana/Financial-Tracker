@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.*;
-@Service @RequiredArgsConstructor
+
+@Service
+@RequiredArgsConstructor
 public class BankAccountService {
-    private final BankAccountRepository repo; private final UserService userService;
+    private final BankAccountRepository repo;
+    private final UserService userService;
     private static final Map<String,String[]> CURRENCY_META = Map.ofEntries(
         Map.entry("EUR",new String[]{"€","Euro","EU"}),Map.entry("GBP",new String[]{"£","British Pound","GB"}),Map.entry("USD",new String[]{"$","US Dollar","US"}),
         Map.entry("INR",new String[]{"₹","Indian Rupee","IN"}),Map.entry("JPY",new String[]{"¥","Japanese Yen","JP"}),Map.entry("CAD",new String[]{"C$","Canadian Dollar","CA"}),
@@ -21,7 +24,9 @@ public class BankAccountService {
         Map.entry("KES",new String[]{"KSh","Kenyan Shilling","KE"}),Map.entry("THB",new String[]{"฿","Thai Baht","TH"}),Map.entry("MYR",new String[]{"RM","Malaysian Ringgit","MY"}),
         Map.entry("IDR",new String[]{"Rp","Indonesian Rupiah","ID"}),Map.entry("ILS",new String[]{"₪","Israeli Shekel","IL"}),Map.entry("HUF",new String[]{"Ft","Hungarian Forint","HU"})
     );
-    public List<Map<String,Object>> getAll(){return repo.findByUserOrderByNameAsc(userService.getCurrentUser()).stream().map(this::build).toList();}
+    public List<Map<String,Object>> getAll(){
+        return repo.findByUserOrderByNameAsc(userService.getCurrentUser()).stream().map(this::build).toList();
+    }
     public Map<String,Object> create(BankAccountRequest req){
         var u=userService.getCurrentUser();
         var meta=CURRENCY_META.getOrDefault(req.getCurrencyCode(),new String[]{"€","Euro","EU"});
@@ -39,7 +44,11 @@ public class BankAccountService {
                 .build();
         return build(repo.save(a));
     }
-    public void delete(Long id){var u=userService.getCurrentUser();var a=repo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Not found"));repo.delete(a);}    
+    public void delete(Long id){
+        var u=userService.getCurrentUser();
+        var a=repo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Not found"));
+        repo.delete(a);
+    }
     private Map<String,Object> build(BankAccount a){
         return Map.of(
                 "id",a.getId(),

@@ -13,11 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 @Service @RequiredArgsConstructor
 public class AuthService {
+    private static final String PASSWORD_POLICY = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$";
     private final UserRepository userRepo; private final CategoryRepository catRepo;
     private final PasswordEncoder encoder; private final JwtUtil jwt; private final AuthenticationManager authManager;
     @Transactional
     public AuthResponse register(RegisterRequest req) {
         if(userRepo.existsByEmail(req.getEmail())) throw new BadRequestException("Email already registered");
+        if (req.getPassword() == null || !req.getPassword().matches(PASSWORD_POLICY)) {
+            throw new BadRequestException("Password must be at least 8 characters and include upper, lower, number, and special character");
+        }
         User u = User.builder().firstName(req.getFirstName()).lastName(req.getLastName()).email(req.getEmail()).password(encoder.encode(req.getPassword())).currency(req.getCurrency()!=null?req.getCurrency():"EUR").build();
         userRepo.save(u); seedCategories(u); return build(u, jwt.generateToken(u));
     }

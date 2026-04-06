@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -33,7 +34,6 @@ public class SubscriptionService {
         }
 
         List<Map<String, Object>> subs = new ArrayList<>();
-        LocalDate now = LocalDate.now();
 
         for (var entry : groups.entrySet()) {
             List<Transaction> txs = entry.getValue();
@@ -64,7 +64,7 @@ public class SubscriptionService {
             BigDecimal avgAmount = txs.stream()
                     .map(Transaction::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(BigDecimal.valueOf(txs.size()), 2, BigDecimal.ROUND_HALF_UP);
+                    .divide(BigDecimal.valueOf(txs.size()), 2, RoundingMode.HALF_UP);
 
             LocalDate lastDate = last.getDate();
             LocalDate nextDate = lastDate.plusDays((long) Math.round(avgGap));

@@ -10,7 +10,15 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const CURRENCIES = ["EUR","GBP","USD","INR","JPY","CAD","AUD","CHF","CNY","AED","NGN","BRL","MXN","ZAR","SGD"];
-const schema = z.object({ firstName:z.string().min(1), lastName:z.string().min(1), email:z.string().email(), password:z.string().min(6,"Min 6 chars"), currency:z.string().min(1) });
+const schema = z.object({
+  firstName:z.string().min(1),
+  lastName:z.string().min(1),
+  email:z.string().email(),
+  password:z.string()
+    .min(8,"Min 8 chars")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/, "Use upper, lower, number, and special char"),
+  currency:z.string().min(1)
+});
 type F = z.infer<typeof schema>;
 
 const RegisterPage: React.FC = () => {
@@ -38,7 +46,7 @@ const RegisterPage: React.FC = () => {
               <div><label className="label">Last Name</label><input {...register("lastName")} className="input" placeholder="Doe" /></div>
             </div>
             <div><label className="label">Email</label><input {...register("email")} type="email" className="input" placeholder="you@example.com" />{errors.email&&<p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}</div>
-            <div><label className="label">Password</label><input {...register("password")} type="password" className="input" placeholder="Min 6 characters" />{errors.password&&<p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}</div>
+            <div><label className="label">Password</label><input {...register("password")} type="password" className="input" placeholder="Min 8 chars incl. Aa1!" />{errors.password&&<p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}</div>
             <div>
               <label className="label">Primary Currency</label>
               <select {...register("currency")} className="input">

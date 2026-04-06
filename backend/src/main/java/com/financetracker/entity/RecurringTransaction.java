@@ -13,6 +13,7 @@ public class RecurringTransaction {
     @Enumerated(EnumType.STRING) @Column(nullable=false) private Transaction.TransactionType type;
     @Enumerated(EnumType.STRING) @Column(nullable=false) private Frequency frequency;
     @Column(nullable=false) private LocalDate nextDueDate;
+    private LocalDate endDate;
     private LocalDate lastExecutedDate;
     @Builder.Default private Boolean active = true;
     private String note;

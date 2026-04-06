@@ -30,7 +30,7 @@ public class DashboardService {
                 BigDecimal savings = inc.compareTo(BigDecimal.ZERO) > 0
                                 ? bal.multiply(BigDecimal.valueOf(100)).divide(inc, 2, RoundingMode.HALF_UP)
                                 : BigDecimal.ZERO;
-                int health = calcHealth(u, m, y, inc, exp, savings);
+                int health = calcHealth(inc, exp, savings);
                 String grade = grade(health);
 
                 // All user transactions (we will filter per account when needed)
@@ -301,12 +301,11 @@ public class DashboardService {
         private boolean co2TrendImproving(User u, Long bankAccountId) {
                 LocalDate now = LocalDate.now();
                 LocalDate lastMonth = now.minusMonths(1);
-                BigDecimal currentCo2 = safe(
-                                txRepo.sumCo2ByMonth(u, now.getMonthValue(), now.getYear(), bankAccountId));
-                BigDecimal lastCo2 = safe(
-                                txRepo.sumCo2ByMonth(u, lastMonth.getMonthValue(), lastMonth.getYear(), bankAccountId));
-                if (currentCo2.compareTo(BigDecimal.ZERO) == 0 && lastCo2.compareTo(BigDecimal.ZERO) == 0)
+                BigDecimal currentCo2 = safe(txRepo.sumCo2ByMonth(u, now.getMonthValue(), now.getYear(), bankAccountId));
+                BigDecimal lastCo2 = safe(txRepo.sumCo2ByMonth(u, lastMonth.getMonthValue(), lastMonth.getYear(), bankAccountId));
+                if (currentCo2.compareTo(BigDecimal.ZERO) == 0 && lastCo2.compareTo(BigDecimal.ZERO) == 0) {
                         return false;
+                }
                 return currentCo2.compareTo(lastCo2) <= 0;
         }
 
@@ -314,12 +313,14 @@ public class DashboardService {
                 return v != null ? v : BigDecimal.ZERO;
         }
 
-        private int calcHealth(User u, int m, int y, BigDecimal inc, BigDecimal exp, BigDecimal savings) {
+        private int calcHealth(BigDecimal inc, BigDecimal exp, BigDecimal savings) {
                 int base = 50;
-                if (inc.compareTo(exp) > 0)
+                if (inc.compareTo(exp) > 0) {
                         base += 10;
-                if (savings.doubleValue() >= 20)
+                }
+                if (savings.doubleValue() >= 20) {
                         base += 20;
+                }
                 return Math.min(100, base);
         }
 
@@ -328,15 +329,19 @@ public class DashboardService {
         }
 
         private String summary(int score) {
-                if (score >= 85)
+                if (score >= 85) {
                         return "Excellent overall financial health";
-                if (score >= 70)
+                }
+                if (score >= 70) {
                         return "Strong position with room to optimise";
-                if (score >= 55)
+                }
+                if (score >= 55) {
                         return "Decent, but there are clear improvement areas";
-                if (score >= 40)
+                }
+                if (score >= 40) {
                         return "Needs attention to avoid issues";
-                return "High risk – urgent changes recommended";
+                }
+                return "High risk - urgent changes recommended";
         }
 
         private int calcStreak(User u) {

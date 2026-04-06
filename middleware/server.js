@@ -31,13 +31,20 @@ app.use("/api", express.raw({ type: "*/*", limit: "20mb" }), async (req, res) =>
   const url         = `${BACKEND}${req.originalUrl}`;
   const contentType = (req.headers["content-type"] || "").toLowerCase();
 
-  // Convert Buffer to the right type for axios
+  // Convert parsed/streamed body to the right type for axios.
   let data;
-  if (req.body && req.body.length > 0) {
-    if (contentType.includes("application/json") || contentType.includes("text/")) {
-      data = req.body.toString("utf8");   // string — axios sends as-is
-    } else {
-      data = req.body;                    // Buffer — for file uploads etc.
+  if (req.body != null) {
+    if (Buffer.isBuffer(req.body)) {
+      if (req.body.length > 0) {
+        data = (contentType.includes("application/json") || contentType.includes("text/"))
+          ? req.body.toString("utf8")
+          : req.body;
+      }
+    } else if (typeof req.body === "string") {
+      if (req.body.length > 0) data = req.body;
+    } else if (typeof req.body === "object") {
+      // express.json() on nodeRouter may already parse body for unmatched /api routes.
+      if (Object.keys(req.body).length > 0) data = req.body;
     }
   }
 

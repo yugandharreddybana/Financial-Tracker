@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 
 const FREQS = ["WEEKLY","BIWEEKLY","MONTHLY","QUARTERLY","YEARLY"];
-const schema = z.object({ name: z.string().min(1), amount: z.number().positive(), type: z.enum(["INCOME","EXPENSE"]), frequency: z.string().min(1), categoryId: z.number(), nextDueDate: z.string().min(1), note: z.string().optional() });
+const schema = z.object({ name: z.string().min(1), amount: z.number().positive(), type: z.enum(["INCOME","EXPENSE"]), frequency: z.string().min(1), categoryId: z.number(), nextDueDate: z.string().min(1), endDate: z.string().optional(), note: z.string().optional() });
 type F = z.infer<typeof schema>;
 
 const RecurringPage: React.FC = () => {
@@ -79,7 +79,7 @@ const RecurringPage: React.FC = () => {
                     <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-medium">{r.frequency}</span>
                     {!r.active && <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">Inactive</span>}
                   </div>
-                  <p className="text-xs text-gray-400">{r.categoryName} · Next: {r.nextDueDate}</p>
+                  <p className="text-xs text-gray-400">{r.categoryName} · Next: {r.nextDueDate}{r.endDate ? ` · Ends: ${r.endDate}` : ""}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -111,6 +111,7 @@ const RecurringPage: React.FC = () => {
                 <div><label className="label">Amount (€)</label><input type="number" step="0.01" {...register("amount",{valueAsNumber:true})} className="input" placeholder="0.00"/>{errors.amount&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
                 <div><label className="label">Next Due</label><input type="date" {...register("nextDueDate")} className="input"/>{errors.nextDueDate&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               </div>
+              <div><label className="label">End Date (optional)</label><input type="date" {...register("endDate")} className="input" /></div>
               <div><label className="label">Frequency</label><select {...register("frequency")} className="input">{FREQS.map(f=><option key={f} value={f}>{f}</option>)}</select></div>
               <div><label className="label">Category</label>
                 <select {...register("categoryId",{valueAsNumber:true})} className="input"><option value="">Select...</option>{filteredCats.map(c=><option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</select>

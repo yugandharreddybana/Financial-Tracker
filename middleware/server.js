@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const { createProxyMiddleware, fixRequestBody } = require("http-proxy-middleware");
 
 const app = express();
 const PORT       = process.env.PORT        || 4000;
@@ -38,8 +38,8 @@ app.use("/api", nodeRouter);
 // IMPORTANT: registered AFTER node routes but BEFORE any body-parser on app
 // level, so the raw request stream is intact for forwarding.
 app.use(
-  "/api",
   createProxyMiddleware({
+    pathFilter: "/api",
     target: BACKEND,
     changeOrigin: true,
     on: {
@@ -50,6 +50,10 @@ app.use(
 
         // Set Origin to a value Java trusts (avoids CORS rejection)
         proxyReq.setHeader("Origin", FRONTEND);
+
+        if (req.body) {
+          fixRequestBody(proxyReq, req);
+        }
 
         console.log(`[→ Java] ${req.method} ${req.originalUrl}`);
       },

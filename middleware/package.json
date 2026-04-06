@@ -1,7 +1,7 @@
 {
   "name": "finance-tracker-middleware",
   "version": "1.0.0",
-  "description": "Node.js middleware for AI insights and exchange rates",
+  "description": "Node.js middleware — custom routes (AI, receipts, exchange rates, subscriptions) + proxy to Java backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,6 +13,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
     "express-rate-limit": "^7.2.0",
+    "http-proxy-middleware": "^3.0.3",
     "openai": "^4.29.2"
   },
   "devDependencies": {

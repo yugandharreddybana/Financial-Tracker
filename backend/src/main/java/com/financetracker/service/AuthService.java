@@ -1,0 +1,38 @@
+package com.financetracker.service;
+import com.financetracker.dto.*;
+import com.financetracker.entity.Category;
+import com.financetracker.entity.User;
+import com.financetracker.exception.BadRequestException;
+import com.financetracker.repository.*;
+import com.financetracker.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+@Service @RequiredArgsConstructor
+public class AuthService {
+    private final UserRepository userRepo; private final CategoryRepository catRepo;
+    private final PasswordEncoder encoder; private final JwtUtil jwt; private final AuthenticationManager authManager;
+    @Transactional
+    public AuthResponse register(RegisterRequest req) {
+        if(userRepo.existsByEmail(req.getEmail())) throw new BadRequestException("Email already registered");
+        User u = User.builder().firstName(req.getFirstName()).lastName(req.getLastName()).email(req.getEmail()).password(encoder.encode(req.getPassword())).currency(req.getCurrency()!=null?req.getCurrency():"EUR").build();
+        userRepo.save(u); seedCategories(u); return build(u, jwt.generateToken(u));
+    }
+    public AuthResponse login(AuthRequest req) {
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(req.getEmail(),req.getPassword()));
+        User u = userRepo.findByEmail(req.getEmail()).orElseThrow(); return build(u, jwt.generateToken(u));
+    }
+    private void seedCategories(User u) {
+        catRepo.saveAll(List.of(
+            cat("Salary","💼","#10B981",Category.CategoryType.INCOME,u), cat("Freelance","💻","#3B82F6",Category.CategoryType.INCOME,u), cat("Investment","📈","#8B5CF6",Category.CategoryType.INCOME,u), cat("Gift","🎁","#EC4899",Category.CategoryType.INCOME,u),
+            cat("Food & Dining","🍽️","#EF4444",Category.CategoryType.EXPENSE,u), cat("Transport","🚗","#F97316",Category.CategoryType.EXPENSE,u), cat("Shopping","🛍️","#EC4899",Category.CategoryType.EXPENSE,u),
+            cat("Entertainment","🎬","#6366F1",Category.CategoryType.EXPENSE,u), cat("Health","🏥","#14B8A6",Category.CategoryType.EXPENSE,u), cat("Housing","🏠","#84CC16",Category.CategoryType.EXPENSE,u),
+            cat("Utilities","⚡","#EAB308",Category.CategoryType.EXPENSE,u), cat("Education","🎓","#0EA5E9",Category.CategoryType.EXPENSE,u), cat("Travel","✈️","#A855F7",Category.CategoryType.EXPENSE,u)
+        ));
+    }
+    private Category cat(String n,String i,String c,Category.CategoryType t,User u){return Category.builder().name(n).icon(i).color(c).type(t).user(u).build();}
+    private AuthResponse build(User u,String t){return AuthResponse.builder().token(t).email(u.getEmail()).firstName(u.getFirstName()).lastName(u.getLastName()).currency(u.getCurrency()).build();}
+}

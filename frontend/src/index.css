@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+#root {
+  @apply min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
+}
+
+.card {
+  @apply bg-white/90 dark:bg-slate-900/70 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200;
+}
+
+.badge-soft {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200;
+}
+
+.input, .select {
+  @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/60 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
+}
+
+.table-basic {
+  @apply min-w-full text-sm;
+}
+
+.table-basic thead {
+  @apply bg-slate-50/80 dark:bg-slate-900/70;
+}
+
+.table-basic th {
+  @apply px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400;
+}
+
+.table-basic td {
+  @apply px-3 py-2 align-middle text-xs text-slate-700 dark:text-slate-100 border-t border-slate-100 dark:border-slate-800;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+
+.recharts-default-tooltip {
+  border-radius: 12px !important;
+  border-color: #e5e7eb !important;
+  box-shadow: 0 10px 25px rgba(15,23,42,0.08) !important;
+}

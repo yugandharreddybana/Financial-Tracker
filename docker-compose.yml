@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: financetracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/financetracker
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APP_CORS_ALLOWED-ORIGINS: http://localhost:3000
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+
+  middleware:
+    build: ./middleware
+    environment:
+      PORT: 4000
+      FRONTEND_URL: http://localhost:3000
+      BACKEND_URL: http://backend:8080
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key_here}
+    depends_on:
+      - backend
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+      - middleware
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:

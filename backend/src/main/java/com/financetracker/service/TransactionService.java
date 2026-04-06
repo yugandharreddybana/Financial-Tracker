@@ -158,7 +158,8 @@ public class TransactionService {
     }
 
     private void applyDeltaToAccount(BankAccount account, Transaction.TransactionType type, BigDecimal amount) {
-        if (amount == null) return;
+        // CWE-570 fix: removed always-false `amount == null` check.
+        // All call sites pass BigDecimal.valueOf(...) or a @Column(nullable=false) field value.
         BigDecimal current = account.getCurrentBalance() != null ? account.getCurrentBalance() : BigDecimal.ZERO;
         if (type == Transaction.TransactionType.INCOME) {
             current = current.add(amount);
@@ -170,7 +171,8 @@ public class TransactionService {
     }
 
     private void revertDeltaFromAccount(BankAccount account, Transaction.TransactionType type, BigDecimal amount) {
-        if (amount == null) return;
+        // CWE-570 fix: removed always-false `amount == null` check.
+        // All call sites pass BigDecimal.valueOf(...) or a @Column(nullable=false) field value.
         BigDecimal current = account.getCurrentBalance() != null ? account.getCurrentBalance() : BigDecimal.ZERO;
         if (type == Transaction.TransactionType.INCOME) {
             current = current.subtract(amount);

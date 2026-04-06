@@ -93,14 +93,18 @@ public class SubscriptionService {
     }
 
     private String normalizeDescription(String desc) {
-        String d = desc == null ? "" : desc.trim().toLowerCase(Locale.ENGLISH);
+        // CWE-570 fix: removed always-false `desc == null` branch.
+        // Called only with t.getDescription() which is @Column(nullable=false).
+        String d = desc.trim().toLowerCase(Locale.ENGLISH);
         d = d.replaceAll("[0-9]", "");
         d = d.replaceAll("\\s+", " ");
         return d;
     }
 
     private String prettyDescription(String desc) {
-        if (desc == null || desc.isBlank()) return "Unknown";
+        // CWE-570 fix: removed always-false `desc == null` check.
+        // Called only with last.getDescription() which is @Column(nullable=false).
+        if (desc.isBlank()) return "Unknown";
         String cleaned = desc.trim();
         if (cleaned.length() <= 1) return cleaned.toUpperCase(Locale.ENGLISH);
         return cleaned.substring(0, 1).toUpperCase(Locale.ENGLISH) + cleaned.substring(1);

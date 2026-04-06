@@ -21,19 +21,24 @@ app.use("/api/receipt", require("./routes/receipt"));
 app.use("/api/exchange-rates", require("./routes/exchangeRates"));
 app.use("/api/subscriptions", subsLimiter, require("./routes/subscriptions"));
 
-// Catch-all: proxy every other /api/* request straight through to Java Spring Boot
+// Catch-all: proxy every other /api/* request straight through to Java Spring Boot.
+// changeOrigin: false - keeps the original Origin header so Java CORS accepts it.
+// The Authorization: Bearer token from the frontend is forwarded untouched.
 app.use(
   "/api",
   createProxyMiddleware({
     target: BACKEND_URL,
-    changeOrigin: true,
+    changeOrigin: false,   // preserve original Origin so Java CORS allows it
     on: {
+      proxyReq: (proxyReq, req) => {
+        // Ensure Authorization header is explicitly forwarded
+        const auth = req.headers["authorization"];
+        if (auth) proxyReq.setHeader("Authorization", auth);
+        console.log(`[Proxy] ${req.method} ${req.url} → ${BACKEND_URL}${req.url}`);
+      },
       error: (err, req, res) => {
         console.error(`[Proxy Error] ${req.method} ${req.url} →`, err.message);
         res.status(502).json({ error: "Backend unavailable", detail: err.message });
-      },
-      proxyReq: (proxyReq, req) => {
-        console.log(`[Proxy] ${req.method} ${req.url} → ${BACKEND_URL}${req.url}`);
       },
     },
   })

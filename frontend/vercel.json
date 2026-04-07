@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE_WITH_MIDDLEWARE_RAILWAY_URL/api/:path*"
+      "destination": "https://financial-tracker-production-4e71.up.railway.app/api/:path*"
     },
     {
       "source": "/(.*)",

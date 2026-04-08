@@ -40,7 +40,7 @@ const BankAccountsPage: React.FC = () => {
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<F>({
     resolver: zodResolver(schema),
-    defaultValues: { icon:"🏦", color:"#3B82F6", currencyId: 0, currentBalance: 0, isCreditCard: false, creditLimit: 0 },
+    defaultValues: { icon:"🏦", color:"#3B82F6", currencyId: 0, isCreditCard: false },  // no 0 default for amounts — inputs start blank
   });
   const selectedCurrId = watch("currencyId");
   const selectedCurr = currencies.find(c => c.id === selectedCurrId) ?? null;

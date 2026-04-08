@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const schema = z.object({ categoryId: z.number(), limitAmount: z.number().positive(), month: z.number().min(1).max(12), year: z.number().min(2020) });
+const schema = z.object({ categoryId: z.coerce.number().min(1, "Select a category"), limitAmount: z.coerce.number().positive("Must be a positive number"), month: z.coerce.number().min(1).max(12), year: z.coerce.number().min(2020) });
 type F = z.infer<typeof schema>;
 
 const BudgetsPage: React.FC = () => {
@@ -96,13 +96,13 @@ const BudgetsPage: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               <div><label className="label">Expense Category</label>
-                <select {...register("categoryId",{valueAsNumber:true})} className="input"><option value="">Select...</option>{safeCats.map(c=><option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</select>
+                <select {...register("categoryId")} className="input"><option value="">Select...</option>{safeCats.map(c=><option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</select>
                 {errors.categoryId && <p className="text-xs text-red-500 mt-1">Required</p>}
               </div>
-              <div><label className="label">Monthly Limit (€)</label><input type="number" step="0.01" {...register("limitAmount",{valueAsNumber:true})} className="input" placeholder="500" />{errors.limitAmount && <p className="text-xs text-red-500 mt-1">Required</p>}</div>
+              <div><label className="label">Monthly Limit (€)</label><input type="number" step="0.01" {...register("limitAmount")} className="input" placeholder="500" />{errors.limitAmount && <p className="text-xs text-red-500 mt-1">Required</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Month</label><select {...register("month",{valueAsNumber:true})} className="input">{MONTHS.map((m,i)=><option key={i} value={i+1}>{m}</option>)}</select></div>
-                <div><label className="label">Year</label><input type="number" {...register("year",{valueAsNumber:true})} className="input" placeholder={String(now.getFullYear())} /></div>
+                <div><label className="label">Month</label><select {...register("month")} className="input">{MONTHS.map((m,i)=><option key={i} value={i+1}>{m}</option>)}</select></div>
+                <div><label className="label">Year</label><input type="number" {...register("year")} className="input" placeholder={String(now.getFullYear())} /></div>
               </div>
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary flex-1 justify-center">Cancel</button>

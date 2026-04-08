@@ -19,11 +19,11 @@ type Frequency = typeof FREQUENCIES[number];
 
 const schema = z.object({
   description: z.string().min(1, "Required"),
-  amount: z.number({ invalid_type_error: "Enter a number" }).positive("Must be positive"),
+  amount: z.coerce.number({ invalid_type_error: "Enter a number" }).positive("Must be positive"),
   date: z.string().min(1, "Required"),
   type: z.enum(["INCOME", "EXPENSE"]),
-  categoryId: z.number({ invalid_type_error: "Select a category" }),
-  bankAccountId: z.number().optional().nullable(),
+  categoryId: z.coerce.number({ invalid_type_error: "Select a category" }).min(1, "Select a category"),
+  bankAccountId: z.coerce.number().optional().nullable(),
   note: z.string().optional(),
   recurringStartDate: z.string().optional(),
   recurringEndDate: z.string().optional(),
@@ -219,7 +219,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
 
           <div>
             <label className="label">Bank Account</label>
-            <select {...register("bankAccountId", { valueAsNumber: true })} className="input">
+            <select {...register("bankAccountId")} className="input">
               <option value="">- No specific account -</option>
               {bankAccounts.map((a) => (
                 <option key={a.id} value={a.id}>{a.icon} {a.name} ({a.currencyCode})</option>
@@ -236,7 +236,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">{currencyLabel} *</label>
-              <input type="number" step="0.01" {...register("amount", { valueAsNumber: true })} className="input" placeholder="0.00" />
+              <input type="number" step="0.01" {...register("amount")} className="input" placeholder="0.00" />
               {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount.message}</p>}
             </div>
             <div>
@@ -247,7 +247,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
 
           <div>
             <label className="label">Category *</label>
-            <select {...register("categoryId", { valueAsNumber: true })} className="input">
+            <select {...register("categoryId")} className="input">
               <option value="">Select category</option>
               {filteredCats.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
             </select>

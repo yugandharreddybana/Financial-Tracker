@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 
 const FREQS = ["WEEKLY","BIWEEKLY","MONTHLY","QUARTERLY","YEARLY"];
-const schema = z.object({ name: z.string().min(1), amount: z.number().positive(), type: z.enum(["INCOME","EXPENSE"]), frequency: z.string().min(1), categoryId: z.number(), bankAccountId: z.number({ required_error: "Bank account is required", invalid_type_error: "Bank account is required" }).min(1, "Bank account is required"), nextDueDate: z.string().min(1), endDate: z.string().optional(), note: z.string().optional() });
+const schema = z.object({ name: z.string().min(1), amount: z.coerce.number().positive("Must be a positive number"), type: z.enum(["INCOME","EXPENSE"]), frequency: z.string().min(1), categoryId: z.coerce.number().min(1, "Select a category"), bankAccountId: z.coerce.number({ invalid_type_error: "Bank account is required" }).min(1, "Bank account is required"), nextDueDate: z.string().min(1), endDate: z.string().optional(), note: z.string().optional() });
 type F = z.infer<typeof schema>;
 
 const RecurringPage: React.FC = () => {
@@ -111,17 +111,17 @@ const RecurringPage: React.FC = () => {
               </div>
               <div><label className="label">Name</label><input {...register("name")} className="input" placeholder="e.g. Spotify Premium"/>{errors.name&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Amount (€)</label><input type="number" step="0.01" {...register("amount",{valueAsNumber:true})} className="input" placeholder="0.00"/>{errors.amount&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
+                <div><label className="label">Amount (€)</label><input type="number" step="0.01" {...register("amount")} className="input" placeholder="0.00"/>{errors.amount&&<p className="text-xs text-red-500 mt-1">{errors.amount.message||"Required"}</p>}</div>
                 <div><label className="label">Next Due</label><input type="date" {...register("nextDueDate")} className="input"/>{errors.nextDueDate&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               </div>
               <div><label className="label">End Date (optional)</label><input type="date" {...register("endDate")} className="input" /></div>
               <div><label className="label">Frequency</label><select {...register("frequency")} className="input">{FREQS.map(f=><option key={f} value={f}>{f}</option>)}</select></div>
               <div><label className="label">Category</label>
-                <select {...register("categoryId",{valueAsNumber:true})} className="input"><option value="">Select...</option>{filteredCats.map(c=><option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</select>
+                <select {...register("categoryId")} className="input"><option value="">Select...</option>{filteredCats.map(c=><option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</select>
                 {errors.categoryId&&<p className="text-xs text-red-500 mt-1">Required</p>}
               </div>
               <div><label className="label">Bank Account *</label>
-                <select {...register("bankAccountId",{valueAsNumber:true})} className="input"><option value="">Select bank account...</option>{accounts.filter(a=>!a.isCreditCard).map(a=><option key={a.id} value={a.id}>{a.icon} {a.name} ({a.currencyCode})</option>)}</select>
+                <select {...register("bankAccountId")} className="input"><option value="">Select bank account...</option>{accounts.filter(a=>!a.isCreditCard).map(a=><option key={a.id} value={a.id}>{a.icon} {a.name} ({a.currencyCode})</option>)}</select>
                 {errors.bankAccountId&&<p className="text-xs text-red-500 mt-1">{errors.bankAccountId.message}</p>}
               </div>
               <div><label className="label">Note</label><textarea {...register("note")} rows={2} className="input resize-none" placeholder="Optional"/></div>

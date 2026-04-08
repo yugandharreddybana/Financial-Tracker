@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 
 const ICONS   = ["🎯","✈️","🏠","🚗","💍","📱","💻","🎓","🌴","💰","🏋️","🎸","🐕","🎮"];
 const COLORS  = ["#6366F1","#10B981","#3B82F6","#F97316","#EC4899","#8B5CF6","#14B8A6","#EF4444"];
-const schema  = z.object({ name: z.string().min(1), icon: z.string(), color: z.string(), targetAmount: z.number().positive(), currentAmount: z.number().min(0), targetDate: z.string().optional() });
+const schema  = z.object({ name: z.string().min(1), icon: z.string(), color: z.string(), targetAmount: z.coerce.number().positive("Must be a positive number"), currentAmount: z.coerce.number().min(0).default(0), targetDate: z.string().optional() });
 type F = z.infer<typeof schema>;
 
 const GoalsPage: React.FC = () => {
@@ -26,7 +26,7 @@ const GoalsPage: React.FC = () => {
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<F>({
     resolver: zodResolver(schema),
-    defaultValues: { icon: "🎯", color: "#6366F1", currentAmount: 0 }
+    defaultValues: { icon: "🎯", color: "#6366F1" }  // no 0 default for amounts
   });
   const selColor = watch("color"); const selIcon = watch("icon");
 
@@ -92,8 +92,8 @@ const GoalsPage: React.FC = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               <div><label className="label">Goal Name</label><input {...register("name")} className="input" placeholder="e.g. Holiday to Japan" />{errors.name && <p className="text-xs text-red-500 mt-1">Required</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Target Amount (€)</label><input type="number" step="0.01" {...register("targetAmount",{valueAsNumber:true})} className="input" placeholder="5000" />{errors.targetAmount && <p className="text-xs text-red-500 mt-1">Required</p>}</div>
-                <div><label className="label">Current Savings</label><input type="number" step="0.01" {...register("currentAmount",{valueAsNumber:true})} className="input" placeholder="0" /></div>
+                <div><label className="label">Target Amount (€)</label><input type="number" step="0.01" {...register("targetAmount")} className="input" placeholder="5000" />{errors.targetAmount && <p className="text-xs text-red-500 mt-1">Required</p>}</div>
+                <div><label className="label">Current Savings</label><input type="number" step="0.01" {...register("currentAmount")} className="input" placeholder="0" /></div>
               </div>
               <div><label className="label">Target Date</label><input type="date" {...register("targetDate")} className="input" /></div>
               <div><label className="label">Icon</label>

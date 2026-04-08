@@ -26,10 +26,10 @@ const LOAN_TYPES = [
 const schema = z.object({
   name: z.string().min(1, "Required"),
   loanType: z.string().min(1, "Required"),
-  totalAmount: z.string().min(1, "Required").transform(Number).refine(v => !isNaN(v) && v > 0, "Must be positive"),
-  amountPaid: z.string().optional().transform(v => (v && v.trim() ? Number(v) : 0)).refine(v => !isNaN(v), "Must be a number"),
-  monthlyInstallment: z.string().optional().transform(v => (v && v.trim() ? Number(v) : undefined)),
-  interestRate: z.string().optional().transform(v => (v && v.trim() ? Number(v) : undefined)),
+  totalAmount: z.coerce.number().positive("Must be a positive number"),
+  amountPaid: z.coerce.number().min(0).default(0),
+  monthlyInstallment: z.coerce.number().positive().optional().or(z.literal("").transform(() => undefined)),
+  interestRate: z.coerce.number().min(0).optional().or(z.literal("").transform(() => undefined)),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   lender: z.string().optional(),
@@ -38,7 +38,7 @@ const schema = z.object({
 type F = z.infer<typeof schema>;
 
 const paymentSchema = z.object({
-  amount: z.string().min(1, "Required").transform(Number).refine(v => !isNaN(v) && v > 0, "Must be positive"),
+  amount: z.coerce.number().positive("Must be a positive number"),
 });
 type PF = z.infer<typeof paymentSchema>;
 
@@ -53,7 +53,7 @@ const LoansPage: React.FC = () => {
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<F>({
     resolver: zodResolver(schema),
-    defaultValues: { loanType: "PERSONAL", amountPaid: 0 },
+    defaultValues: { loanType: "PERSONAL" },  // no 0 default for amounts
   });
 
   const payForm = useForm<PF>({ resolver: zodResolver(paymentSchema) });

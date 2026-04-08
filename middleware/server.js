@@ -57,24 +57,35 @@ app.use("/api", express.raw({ type: "*/*", limit: "20mb" }), async (req, res) =>
 
   console.log(`[\u2192 Java] ${req.method} ${req.originalUrl}`);
 
-  try {
-    const response = await axios({
-      method:         req.method,
-      url,
-      headers,
-      data,
-      responseType:   "arraybuffer",
-      validateStatus: () => true,   // forward all status codes including 4xx/5xx
-      timeout:        30000,
-    });
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000; // ms
 
-    Object.entries(response.headers).forEach(([k, v]) => {
-      if (k.toLowerCase() !== "transfer-encoding") res.setHeader(k, v);
-    });
-    res.status(response.status).send(Buffer.from(response.data));
-  } catch (err) {
-    console.error(`[Proxy Error] ${req.method} ${req.originalUrl}:`, err.message);
-    res.status(502).json({ error: "Backend unavailable", detail: err.message });
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await axios({
+        method:         req.method,
+        url,
+        headers,
+        data,
+        responseType:   "arraybuffer",
+        validateStatus: () => true,
+        timeout:        30000,
+      });
+
+      Object.entries(response.headers).forEach(([k, v]) => {
+        if (k.toLowerCase() !== "transfer-encoding") res.setHeader(k, v);
+      });
+      return res.status(response.status).send(Buffer.from(response.data));
+    } catch (err) {
+      const isRetryable = err.code === "ECONNREFUSED" || err.code === "ECONNRESET" || err.code === "ENOTFOUND";
+      if (isRetryable && attempt < MAX_RETRIES) {
+        console.warn(`[Proxy Retry ${attempt}/${MAX_RETRIES}] ${req.method} ${req.originalUrl}: ${err.message}`);
+        await new Promise(r => setTimeout(r, RETRY_DELAY * attempt));
+        continue;
+      }
+      console.error(`[Proxy Error] ${req.method} ${req.originalUrl}:`, err.message);
+      return res.status(502).json({ error: "Backend unavailable", detail: err.message });
+    }
   }
 });
 

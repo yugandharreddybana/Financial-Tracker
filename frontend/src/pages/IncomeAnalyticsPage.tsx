@@ -39,8 +39,8 @@ const fmtEur = (v: number) =>
 const CUSTOM_TOOLTIP = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white shadow-lg rounded-xl px-3 py-2 border border-gray-100 text-xs">
-      <p className="font-semibold text-gray-800 mb-1">{label}</p>
+    <div className="bg-white dark:bg-gray-900 shadow-lg rounded-xl px-3 py-2 border border-gray-100 dark:border-gray-800 text-xs">
+      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.color }}>
           {p.name}: {fmtEur(p.value)}
@@ -65,8 +65,8 @@ const StatPill: React.FC<{
       <span style={{ color }}>{icon}</span>
     </div>
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-lg font-bold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="text-lg font-bold text-gray-900 dark:text-white">{value}</p>
       {sub && <p className="text-[11px] text-gray-400">{sub}</p>}
     </div>
   </div>
@@ -156,7 +156,7 @@ const IncomeAnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Bar chart – 6-month income vs expenses */}
         <div className="card p-4 lg:col-span-3">
-          <p className="text-xs font-semibold text-gray-700 mb-3">
+          <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">
             Income vs Expenses — last 6 months
           </p>
           <ResponsiveContainer width="100%" height={220}>
@@ -175,7 +175,7 @@ const IncomeAnalyticsPage: React.FC = () => {
 
         {/* Pie chart – income sources this month */}
         <div className="card p-4 lg:col-span-2 flex flex-col">
-          <p className="text-xs font-semibold text-gray-700 mb-3">
+          <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">
             Income sources — {currentMonth}
           </p>
           {data.byCategory.length === 0 ? (
@@ -218,7 +218,7 @@ const IncomeAnalyticsPage: React.FC = () => {
 
       {/* Savings rate line chart */}
       <div className="card p-4">
-        <p className="text-xs font-semibold text-gray-700 mb-3">
+        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">
           Savings rate trend — last 6 months
         </p>
         <ResponsiveContainer width="100%" height={160}>
@@ -243,9 +243,9 @@ const IncomeAnalyticsPage: React.FC = () => {
       <div className="card p-5">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-base">🧮</span>
-          <p className="text-sm font-semibold text-gray-900">What-if: Salary change</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">What-if: Salary change</p>
         </div>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
           Drag the slider to see how a salary change would affect your monthly savings and savings rate.
         </p>
         <div className="flex items-center gap-4 mb-4">
@@ -279,23 +279,23 @@ const IncomeAnalyticsPage: React.FC = () => {
 
         {whatIf && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[11px] text-gray-500 mb-1">New monthly income</p>
-              <p className="text-sm font-bold text-gray-900">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">New monthly income</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">
                 {fmtEur(whatIf.newMonthlyIncome)}
               </p>
               <p className={`text-[11px] font-medium mt-0.5 ${whatIf.delta >= 0 ? "text-green-600" : "text-red-500"}`}>
                 {whatIf.delta >= 0 ? "+" : ""}{fmtEur(whatIf.delta)} / mo
               </p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[11px] text-gray-500 mb-1">Monthly savings</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Monthly savings</p>
               <p className={`text-sm font-bold ${whatIf.newSavings >= 0 ? "text-green-700" : "text-red-600"}`}>
                 {fmtEur(whatIf.newSavings)}
               </p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[11px] text-gray-500 mb-1">New savings rate</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">New savings rate</p>
               <p
                 className={`text-sm font-bold ${
                   whatIf.newSavingsRate >= 20
@@ -309,8 +309,8 @@ const IncomeAnalyticsPage: React.FC = () => {
               </p>
               <p className="text-[11px] text-gray-400">target: 20%+</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[11px] text-gray-500 mb-1">Annual impact</p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Annual impact</p>
               <p
                 className={`text-sm font-bold ${
                   whatIf.annualDelta >= 0 ? "text-green-700" : "text-red-600"

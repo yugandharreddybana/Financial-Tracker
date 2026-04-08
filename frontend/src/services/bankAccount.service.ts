@@ -12,7 +12,7 @@ export const bankAccountService = {
     const res = await api.get<any>("/bank-accounts");
     return { data: toArray(res.data) };
   },
-  create: (payload: { name: string; icon: string; color: string; currencyCode: string; currentBalance?: number }) =>
+  create: (payload: { name: string; icon: string; color: string; currencyCode: string; currentBalance?: number; isCreditCard?: boolean; creditLimit?: number }) =>
     api.post("/bank-accounts", payload),
   delete: (id: number) => api.delete(`/bank-accounts/${id}`),
 };

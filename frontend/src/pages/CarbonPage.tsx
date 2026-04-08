@@ -29,7 +29,7 @@ const CarbonPage: React.FC = () => {
       const res = await bankAccountService.getAll();
       setAccounts(res.data);
     } catch {
-      // ignore
+      toast.error("Failed to load accounts");
     }
   };
 
@@ -39,6 +39,8 @@ const CarbonPage: React.FC = () => {
     try {
       const r = await api.get(`/dashboard/carbon-footprint${param}`);
       setData(r.data);
+    } catch {
+      toast.error("Failed to load carbon data");
     } finally {
       setLoading(false);
     }
@@ -94,7 +96,7 @@ const CarbonPage: React.FC = () => {
         }
       />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-        <div className="card p-5 text-center bg-gradient-to-br from-green-50 to-emerald-50">
+        <div className="card p-5 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
           <div className="flex items-center justify-center mb-2">
             <Leaf className="text-emerald-600" size={20} />
           </div>
@@ -120,7 +122,7 @@ const CarbonPage: React.FC = () => {
             ))}
           </div>
         </div>
-        <div className="card p-5 text-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="card p-5 text-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
           <div className="flex items-center justify-center mb-2">
             <TrendingDown className="text-slate-600" size={20} />
           </div>
@@ -139,7 +141,7 @@ const CarbonPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">CO₂ by Category</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">CO₂ by Category</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.byCategory} layout="vertical" margin={{ left: 20 }}>
@@ -156,7 +158,7 @@ const CarbonPage: React.FC = () => {
           </div>
         </div>
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">CO₂ over Time</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">CO₂ over Time</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.byMonth}>
@@ -172,11 +174,11 @@ const CarbonPage: React.FC = () => {
 
       {aiTips.length > 0 && (
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             <Zap size={18} className="text-amber-500" />
             AI Suggestions
           </h3>
-          <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+          <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
             {aiTips.map((tip, idx) => (
               <li key={idx}>{tip}</li>
             ))}

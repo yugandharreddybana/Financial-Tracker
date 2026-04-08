@@ -79,37 +79,37 @@ const MonthlyReviewPage: React.FC = () => {
       {summary && !loading && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Total income</p><p className="text-lg font-bold text-gray-900">{fmtEur(summary.totalIncome)}</p></div>
-            <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Total expenses</p><p className="text-lg font-bold text-gray-900">{fmtEur(summary.totalExpenses)}</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total income</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.totalIncome)}</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total expenses</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.totalExpenses)}</p></div>
             <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Net savings</p><p className={`text-lg font-bold ${summary.netSavings>=0?"text-emerald-600":"text-red-600"}`}>{fmtEur(summary.netSavings)}</p></div>
-            <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Avg daily spend</p><p className="text-lg font-bold text-gray-900">{fmtEur(summary.avgDailySpend)}</p><p className="text-[11px] text-gray-400 mt-0.5">Savings rate: {summary.savingsRate}%</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Avg daily spend</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.avgDailySpend)}</p><p className="text-[11px] text-gray-400 mt-0.5">Savings rate: {summary.savingsRate}%</p></div>
           </div>
           <div className="card p-4">
-            <p className="text-xs font-semibold text-gray-700 mb-2">Monthly note</p>
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">Monthly note</p>
             <textarea className="input text-xs min-h-[80px]" value={note} onChange={e=>setNote(e.target.value)} placeholder="Add a short note for this month..."/>
             <div className="flex justify-end mt-2"><button onClick={handleSaveNote} disabled={savingNote} className="btn-secondary text-xs">{savingNote?"Saving...":"Save note"}</button></div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="card p-4">
-              <p className="text-xs font-semibold text-gray-700 mb-3">Top spending categories</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">Top spending categories</p>
               {summary.topCategories.length===0 ? <p className="text-xs text-gray-400">No expenses in this period.</p> : (
                 <div className="space-y-2 text-xs">
                   {summary.topCategories.map(c=>(
                     <div key={c.categoryName} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:c.categoryColor+"20"}}>{c.categoryIcon}</div><span className="font-medium text-gray-800">{c.categoryName}</span></div>
-                      <div className="text-right"><p className="font-semibold text-gray-900">{fmtEur(c.amount)}</p><p className="text-[11px] text-gray-400">{c.percentage}% of spend</p></div>
+                      <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:c.categoryColor+"20"}}>{c.categoryIcon}</div><span className="font-medium text-gray-800 dark:text-gray-200">{c.categoryName}</span></div>
+                      <div className="text-right"><p className="font-semibold text-gray-900 dark:text-white">{fmtEur(c.amount)}</p><p className="text-[11px] text-gray-400">{c.percentage}% of spend</p></div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
             <div className="card p-4">
-              <p className="text-xs font-semibold text-gray-700 mb-3">Largest transactions</p>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">Largest transactions</p>
               {summary.largestTransactions.length===0 ? <p className="text-xs text-gray-400">No transactions in this period.</p> : (
                 <div className="space-y-2 text-xs max-h-64 overflow-y-auto">
                   {summary.largestTransactions.map(t=>(
                     <div key={t.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:t.categoryColor+"20"}}>{t.categoryIcon}</div><div><p className="font-medium text-gray-800">{t.description}</p><p className="text-[11px] text-gray-400">{t.date} · {t.categoryName} · {t.type}</p></div></div>
+                      <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:t.categoryColor+"20"}}>{t.categoryIcon}</div><div><p className="font-medium text-gray-800 dark:text-gray-200">{t.description}</p><p className="text-[11px] text-gray-400">{t.date} · {t.categoryName} · {t.type}</p></div></div>
                       <p className={`font-semibold ${t.type==="INCOME"?"text-emerald-600":"text-red-600"}`}>{t.type==="INCOME"?"+":"-"}{fmtEur(t.amount)}</p>
                     </div>
                   ))}
@@ -119,8 +119,8 @@ const MonthlyReviewPage: React.FC = () => {
           </div>
           {(highlights.length>0||improvements.length>0) && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="card p-4"><p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1"><Sparkles size={14} className="text-emerald-500"/> Highlights</p><ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">{highlights.map((h,i)=><li key={i}>{h}</li>)}</ul></div>
-              <div className="card p-4"><p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1"><Sparkles size={14} className="text-amber-500"/> Improvements</p><ul className="list-disc pl-5 text-xs text-gray-700 space-y-1">{improvements.map((h,i)=><li key={i}>{h}</li>)}</ul></div>
+              <div className="card p-4"><p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1"><Sparkles size={14} className="text-emerald-500"/> Highlights</p><ul className="list-disc pl-5 text-xs text-gray-700 dark:text-gray-300 space-y-1">{highlights.map((h,i)=><li key={i}>{h}</li>)}</ul></div>
+              <div className="card p-4"><p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1"><Sparkles size={14} className="text-amber-500"/> Improvements</p><ul className="list-disc pl-5 text-xs text-gray-700 dark:text-gray-300 space-y-1">{improvements.map((h,i)=><li key={i}>{h}</li>)}</ul></div>
             </div>
           )}
         </>

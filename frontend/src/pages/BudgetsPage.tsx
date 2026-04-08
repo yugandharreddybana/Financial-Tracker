@@ -68,14 +68,14 @@ const BudgetsPage: React.FC = () => {
           {safeBudgets.map(b => (
             <div key={b.id} className={clsx("card p-5 relative group", b.isOverBudget && "border-red-200")}>
               {b.isOverBudget && <div className="absolute top-3 right-3"><AlertTriangle size={16} className="text-red-500" /></div>}
-              <button onClick={() => setDeleteBudget(b)} className="absolute top-3 right-8 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
+              <button onClick={() => setDeleteBudget(b)} className="absolute top-3 right-8 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: b.categoryColor+"20" }}>{b.categoryIcon}</div>
-                <div><p className="font-semibold text-gray-900 text-sm">{b.categoryName}</p><p className="text-xs text-gray-400">{MONTHS[b.month-1]} {b.year}</p></div>
+                <div><p className="font-semibold text-gray-900 dark:text-white text-sm">{b.categoryName}</p><p className="text-xs text-gray-400">{MONTHS[b.month-1]} {b.year}</p></div>
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between text-sm"><span className="text-gray-500">Spent</span><span className={clsx("font-bold", b.isOverBudget?"text-red-600":"text-gray-900")}>{b.percentage.toFixed(0)}%</span></div>
-                <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden"><div className={clsx("h-full rounded-full transition-all", getBarColor(b.percentage,b.isOverBudget))} style={{ width:`${Math.min(b.percentage,100)}%` }} /></div>
+                <div className="flex justify-between text-sm"><span className="text-gray-500 dark:text-gray-400">Spent</span><span className={clsx("font-bold", b.isOverBudget?"text-red-600":"text-gray-900 dark:text-white")}>{b.percentage.toFixed(0)}%</span></div>
+                <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden"><div className={clsx("h-full rounded-full transition-all", getBarColor(b.percentage,b.isOverBudget))} style={{ width:`${Math.min(b.percentage,100)}%` }} /></div>
                 <div className="flex justify-between text-xs">
                   <span className={clsx("font-medium", b.isOverBudget?"text-red-500":"text-gray-500")}>€{Number(b.spentAmount).toFixed(2)} spent</span>
                   <span className="text-gray-400">€{Number(b.limitAmount).toFixed(2)} limit</span>
@@ -89,10 +89,10 @@ const BudgetsPage: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm animate-fade-in">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-gray-900">Set Budget</h2>
-              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg"><X size={18} /></button>
+          <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm animate-fade-in">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Set Budget</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               <div><label className="label">Expense Category</label>

@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ArrowRightLeft, Target, Tag, Sparkles,
   TrendingUp, LogOut, X, Trophy, RefreshCw, Landmark,
-  Heart, DollarSign, Leaf, CalendarRange,
+  Heart, DollarSign, Leaf, CalendarRange, Banknote,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/useAppDispatch";
 import { logout } from "../../store/slices/authSlice";
@@ -16,6 +16,7 @@ const navItems = [
   { to: "/budgets",       icon: Target,          label: "Budgets" },
   { to: "/goals",         icon: Trophy,          label: "Savings Goals" },
   { to: "/recurring",     icon: RefreshCw,       label: "Recurring" },
+  { to: "/loans",         icon: Banknote,        label: "Loans" },
   { to: "/net-worth",     icon: DollarSign,      label: "Net Worth" },
   { to: "/health-score",  icon: Heart,           label: "Health Score" },
   { to: "/carbon",        icon: Leaf,            label: "Carbon Footprint" },
@@ -41,27 +42,27 @@ const Sidebar: React.FC<Props> = ({ open = true, onClose = () => {} }) => {
 
       <aside
         className={clsx(
-          // Full viewport height, fixed on mobile / static on desktop
           "fixed top-0 left-0 h-screen w-60 bg-white border-r border-gray-100 z-30",
+          "dark:bg-gray-900 dark:border-gray-800",
           "flex flex-col transition-transform duration-300",
           "lg:translate-x-0 lg:static lg:z-auto lg:h-screen",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* ── Logo ── */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-primary-600 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-bold text-gray-900">FinanceTracker</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">FinanceTracker</p>
               <p className="text-xs text-gray-400">Smart Money</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg"
+            className="lg:hidden p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
           >
             <X size={16} className="text-gray-500" />
           </button>
@@ -79,7 +80,7 @@ const Sidebar: React.FC<Props> = ({ open = true, onClose = () => {} }) => {
                   "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150",
                   isActive
                     ? "bg-primary-600 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
                 )
               }
             >
@@ -90,15 +91,15 @@ const Sidebar: React.FC<Props> = ({ open = true, onClose = () => {} }) => {
         </nav>
 
         {/* ── User footer — always pinned to bottom ── */}
-        <div className="px-2 py-3 border-t border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-50 mb-1.5">
-            <div className="w-7 h-7 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-700 text-xs font-bold uppercase">
+        <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-800 flex-shrink-0">
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 mb-1.5">
+            <div className="w-7 h-7 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-700 dark:text-primary-300 text-xs font-bold uppercase">
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </span>
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-semibold text-gray-900 truncate">
+              <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
                 {user?.firstName} {user?.lastName}
               </p>
               <p className="text-xs text-gray-400 truncate">{user?.email}</p>
@@ -106,7 +107,7 @@ const Sidebar: React.FC<Props> = ({ open = true, onClose = () => {} }) => {
           </div>
           <button
             onClick={() => { dispatch(logout()); navigate("/login"); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors"
           >
             <LogOut size={15} /> Sign Out
           </button>

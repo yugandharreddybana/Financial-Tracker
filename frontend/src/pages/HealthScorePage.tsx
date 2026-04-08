@@ -6,6 +6,7 @@ import PageHeader from "../components/ui/PageHeader";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import clsx from "clsx";
 import { bankAccountService } from "../services/bankAccount.service";
+import toast from "react-hot-toast";
 
 const HealthScorePage: React.FC = () => {
   const [data, setData] = useState<HealthScore | null>(null);
@@ -18,7 +19,7 @@ const HealthScorePage: React.FC = () => {
       const res = await bankAccountService.getAll();
       setAccounts(res.data);
     } catch {
-      // ignore
+      toast.error("Failed to load accounts");
     }
   };
 
@@ -28,6 +29,8 @@ const HealthScorePage: React.FC = () => {
     try {
       const r = await api.get(`/dashboard/health-score${param}`);
       setData(r.data);
+    } catch {
+      toast.error("Failed to load health score");
     } finally {
       setLoading(false);
     }
@@ -45,8 +48,8 @@ const HealthScorePage: React.FC = () => {
     ({ A: "text-green-600", B: "text-blue-600", C: "text-orange-500", D: "text-red-500", F: "text-red-700" }[g] ||
       "text-gray-500");
   const gradeBg = (g: string) =>
-    ({ A: "bg-green-50 border-green-100", B: "bg-blue-50 border-blue-100", C: "bg-orange-50 border-orange-100", D: "bg-red-50 border-red-100", F: "bg-red-50 border-red-100" }[g] ||
-      "bg-gray-50 border-gray-100");
+    ({ A: "bg-green-50 border-green-100 dark:bg-green-950 dark:border-green-900", B: "bg-blue-50 border-blue-100 dark:bg-blue-950 dark:border-blue-900", C: "bg-orange-50 border-orange-100 dark:bg-orange-950 dark:border-orange-900", D: "bg-red-50 border-red-100 dark:bg-red-950 dark:border-red-900", F: "bg-red-50 border-red-100 dark:bg-red-950 dark:border-red-900" }[g] ||
+      "bg-gray-50 border-gray-100 dark:bg-gray-900 dark:border-gray-800");
 
   if (loading || !data) return <LoadingSpinner size="lg" className="py-32" />;
 
@@ -91,14 +94,14 @@ const HealthScorePage: React.FC = () => {
               {data.grade}
             </span>
           </div>
-          <p className="text-4xl font-black text-gray-900 mb-1">
+          <p className="text-4xl font-black text-gray-900 dark:text-white mb-1">
             {data.score}
             <span className="text-lg font-normal text-gray-400">/100</span>
           </p>
-          <p className="text-sm text-gray-600">{data.summary}</p>
-          <div className="flex items-center gap-2 mt-4 bg-white rounded-xl px-3 py-2">
+          <p className="text-sm text-gray-600 dark:text-gray-300">{data.summary}</p>
+          <div className="flex items-center gap-2 mt-4 bg-white dark:bg-gray-800 rounded-xl px-3 py-2">
             <span className="text-sm">🔥</span>
-            <p className="text-sm font-semibold text-gray-700">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Saving streak: <span className="text-orange-500">{data.savingStreak} months</span>
             </p>
           </div>
@@ -109,19 +112,19 @@ const HealthScorePage: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{c.icon}</span>
-                  <p className="text-sm font-semibold text-gray-900">{c.name}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{c.name}</p>
                 </div>
-                <p className="text-sm font-bold text-gray-900">
+                <p className="text-sm font-bold text-gray-900 dark:text-white">
                   {c.score}/{c.maxScore}
                 </p>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-1.5">
+              <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-1.5">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${(c.score / c.maxScore) * 100}%`, backgroundColor: c.color }}
                 />
               </div>
-              <p className="text-xs text-gray-500">{c.description}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{c.description}</p>
             </div>
           ))}
         </div>
@@ -130,13 +133,13 @@ const HealthScorePage: React.FC = () => {
         <div className="card p-5 mt-5">
           <div className="flex items-center gap-2 mb-3">
             <Award size={18} className="text-yellow-500" />
-            <h3 className="text-sm font-semibold text-gray-900">Achievements</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Achievements</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {data.badges.map((b) => (
               <span
                 key={b}
-                className="bg-yellow-50 text-yellow-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-yellow-100"
+                className="bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-yellow-100 dark:border-yellow-900"
               >
                 {b}
               </span>

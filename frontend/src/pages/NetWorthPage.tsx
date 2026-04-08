@@ -19,14 +19,14 @@ const NetWorthPage: React.FC = () => {
 
   const fmt = (v: number) => `€${Number(v).toLocaleString("en-IE", { minimumFractionDigits: 2 })}`;
   const statusColor = (s: string) =>
-    ({ HEALTHY: "text-green-600 bg-green-50", WARNING: "text-orange-600 bg-orange-50", CRITICAL: "text-red-600 bg-red-50" }[s] || "");
+    ({ HEALTHY: "text-green-600 bg-green-50 dark:bg-green-950", WARNING: "text-orange-600 bg-orange-50 dark:bg-orange-950", CRITICAL: "text-red-600 bg-red-50 dark:bg-red-950" }[s] || "");
 
   const loadAccounts = async () => {
     try {
       const res = await bankAccountService.getAll();
       setAccounts(res.data);
     } catch {
-      // ignore
+      toast.error("Failed to load accounts");
     }
   };
 
@@ -91,10 +91,10 @@ const NetWorthPage: React.FC = () => {
           <p className="text-2xl font-bold text-green-600">{fmt(netWorth.totalAssets || 0)}</p>
         </div>
         <div className="card p-5 text-center">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
             Net Worth
           </p>
-          <p className="text-2xl font-bold text-gray-900">{fmt(netWorth.netWorth || 0)}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{fmt(netWorth.netWorth || 0)}</p>
         </div>
         <div className="card p-5 text-center">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
@@ -105,12 +105,12 @@ const NetWorthPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Net Worth History</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Net Worth History</h3>
           <NetWorthChart data={netWorth.history || []} />
         </div>
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">30-Day Cash Flow Forecast</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">30-Day Cash Flow Forecast</h3>
             <span
               className={clsx(
                 "text-xs font-semibold px-2 py-1 rounded-full",
@@ -122,7 +122,7 @@ const NetWorthPage: React.FC = () => {
           </div>
           <CashFlowChart data={cashFlow.dailyForecast || []} />
           <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-green-50 rounded-xl p-3">
+            <div className="bg-green-50 dark:bg-green-950 rounded-xl p-3">
               <div className="flex items-center gap-1.5 mb-1">
                 <ArrowUp size={14} className="text-green-600" />
                 <p className="text-xs font-semibold text-green-700">Projected Income</p>
@@ -131,7 +131,7 @@ const NetWorthPage: React.FC = () => {
                 {fmt(cashFlow.projectedMonthlyIncome)}
               </p>
             </div>
-            <div className="bg-red-50 rounded-xl p-3">
+            <div className="bg-red-50 dark:bg-red-950 rounded-xl p-3">
               <div className="flex items-center gap-1.5 mb-1">
                 <ArrowDown size={14} className="text-red-600" />
                 <p className="text-xs font-semibold text-red-700">Projected Expense</p>

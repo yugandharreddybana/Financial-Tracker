@@ -31,7 +31,7 @@ const CategoriesPage: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try { const { data } = await categoryService.getAll(); setCategories(Array.isArray(data) ? data : []); }
-    catch { setCategories([]); }
+    catch { setCategories([]); toast.error("Failed to load categories"); }
     finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
@@ -57,9 +57,9 @@ const CategoriesPage: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
         {cats.map(cat => (
           <div key={cat.id} className="card p-3.5 relative group flex flex-col items-center text-center gap-1.5">
-            <button onClick={() => setDeleteCat(cat)} className="absolute top-1.5 right-1.5 p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={12} /></button>
+            <button onClick={() => setDeleteCat(cat)} className="absolute top-1.5 right-1.5 p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={12} /></button>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: cat.color + "20" }}>{cat.icon}</div>
-            <p className="text-xs font-medium text-gray-700 leading-tight">{cat.name}</p>
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-tight">{cat.name}</p>
           </div>
         ))}
       </div>
@@ -80,15 +80,15 @@ const CategoriesPage: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm animate-fade-in max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
-              <h2 className="text-base font-semibold text-gray-900">New Category</h2>
-              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg"><X size={18} /></button>
+          <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">New Category</h2>
+              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-              <div className="flex rounded-xl overflow-hidden border border-gray-200">
+              <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                 {(["INCOME","EXPENSE"] as const).map(t => (
-                  <label key={t} className={clsx("flex-1 py-2.5 text-center text-sm font-medium cursor-pointer", selType===t?(t==="INCOME"?"bg-green-600 text-white":"bg-red-600 text-white"):"bg-white text-gray-500 hover:bg-gray-50")}>
+                  <label key={t} className={clsx("flex-1 py-2.5 text-center text-sm font-medium cursor-pointer", selType===t?(t==="INCOME"?"bg-green-600 text-white":"bg-red-600 text-white"):"bg-white dark:bg-gray-800 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700")}>
                     <input type="radio" value={t} {...register("type")} className="hidden" />{t==="INCOME"?"↑ Income":"↓ Expense"}
                   </label>
                 ))}

@@ -31,15 +31,19 @@ public class BankAccountService {
         var u=userService.getCurrentUser();
         var meta=CURRENCY_META.getOrDefault(req.getCurrencyCode(),new String[]{"€","Euro","EU"});
         var balance = req.getCurrentBalance()!=null ? BigDecimal.valueOf(req.getCurrentBalance()) : BigDecimal.ZERO;
+        boolean isCC = Boolean.TRUE.equals(req.getIsCreditCard());
         var a=BankAccount.builder()
                 .name(req.getName())
-                .icon(req.getIcon()!=null?req.getIcon():"🏦")
+                .icon(req.getIcon()!=null?req.getIcon():(isCC?"💳":"🏦"))
                 .color(req.getColor()!=null?req.getColor():"#3B82F6")
                 .currencyCode(req.getCurrencyCode())
                 .currencySymbol(meta[0])
                 .currencyName(meta[1])
                 .country(meta[2])
                 .currentBalance(balance)
+                .isCreditCard(isCC)
+                .creditLimit(isCC && req.getCreditLimit()!=null ? BigDecimal.valueOf(req.getCreditLimit()) : BigDecimal.ZERO)
+                .creditUsed(BigDecimal.ZERO)
                 .user(u)
                 .build();
         return build(repo.save(a));
@@ -50,17 +54,20 @@ public class BankAccountService {
         repo.delete(a);
     }
     private Map<String,Object> build(BankAccount a){
-        return Map.of(
-                "id",a.getId(),
-                "name",a.getName(),
-                "icon",a.getIcon(),
-                "color",a.getColor(),
-                "currencyCode",a.getCurrencyCode(),
-                "currencySymbol",a.getCurrencySymbol(),
-                "currencyName",a.getCurrencyName()!=null?a.getCurrencyName():"",
-                "country",a.getCountry()!=null?a.getCountry():"",
-                "currentBalance",a.getCurrentBalance(),
-                "createdAt",a.getCreatedAt().toString()
-        );
+        var m = new LinkedHashMap<String,Object>();
+        m.put("id",a.getId());
+        m.put("name",a.getName());
+        m.put("icon",a.getIcon());
+        m.put("color",a.getColor());
+        m.put("currencyCode",a.getCurrencyCode());
+        m.put("currencySymbol",a.getCurrencySymbol());
+        m.put("currencyName",a.getCurrencyName()!=null?a.getCurrencyName():"");
+        m.put("country",a.getCountry()!=null?a.getCountry():"");
+        m.put("currentBalance",a.getCurrentBalance());
+        m.put("isCreditCard",Boolean.TRUE.equals(a.getIsCreditCard()));
+        m.put("creditLimit",a.getCreditLimit()!=null?a.getCreditLimit():BigDecimal.ZERO);
+        m.put("creditUsed",a.getCreditUsed()!=null?a.getCreditUsed():BigDecimal.ZERO);
+        m.put("createdAt",a.getCreatedAt().toString());
+        return m;
     }
 }

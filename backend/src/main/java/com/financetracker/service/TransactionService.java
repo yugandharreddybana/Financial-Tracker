@@ -124,8 +124,15 @@ public class TransactionService {
     }
 
     public List<Map<String, Object>> getAllTransactions() {
+        return getAllTransactions(null);
+    }
+
+    public List<Map<String, Object>> getAllTransactions(Long bankAccountId) {
         User u = userService.getCurrentUser();
-        return txRepo.findByUserOrderByDateDescCreatedAtDesc(u).stream().map(this::buildResponse).toList();
+        List<Transaction> txs = bankAccountId != null
+                ? txRepo.findByUserAndBankAccountIdOrderByDateDescCreatedAtDesc(u, bankAccountId)
+                : txRepo.findByUserOrderByDateDescCreatedAtDesc(u);
+        return txs.stream().map(this::buildResponse).toList();
     }
 
     public Map<String, Object> buildResponse(Transaction t) {

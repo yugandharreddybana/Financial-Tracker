@@ -21,7 +21,7 @@ interface BudgetAlert { id: number; categoryName: string; categoryIcon: string; 
 const DashboardPage: React.FC = () => {
   const user = useAppSelector((s) => s.auth.user);
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | "ALL">("ALL");
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [data, setData] = useState<CombinedDashboard | null>(null);
   const [alerts, setAlerts] = useState<BudgetAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,16 +30,25 @@ const DashboardPage: React.FC = () => {
   const loadAccounts = async () => {
     try {
       const res = await bankAccountService.getAll();
-      setAccounts(Array.isArray(res.data) ? res.data : []);
+      const accs = Array.isArray(res.data) ? res.data : [];
+      setAccounts(accs);
+      if (selectedAccountId === null && accs.length > 0) {
+        setSelectedAccountId(accs[0].id);
+      } else if (accs.length === 0) {
+        setLoading(false);
+      }
     } catch {
       setAccounts([]);
+      setLoading(false);
+      toast.error("Failed to load accounts");
     }
   };
 
-  const loadDashboard = async (accountId: number | "ALL") => {
+  const loadDashboard = async (accountId: number | null) => {
+    if (accountId === null) return;
     setLoading(true);
     try {
-      const param = accountId === "ALL" ? "" : `?bankAccountId=${accountId}`;
+      const param = `?bankAccountId=${accountId}`;
       const [statsRes, cashFlowRes, netWorthRes, alertsRes] = await Promise.all([
         api.get(`/dashboard/stats${param}`),
         api.get(`/dashboard/cash-flow-forecast${param}`),
@@ -62,7 +71,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadDashboard(selectedAccountId);
+    if (selectedAccountId !== null) loadDashboard(selectedAccountId);
   }, [selectedAccountId]);
 
   const handleExportPdf = async () => {
@@ -95,7 +104,7 @@ const DashboardPage: React.FC = () => {
     <div id="dashboard-export-root" className="space-y-5">
       <PageHeader
         title={`${greeting}, ${greetingName} 👋`}
-        subtitle={selectedAccountId === "ALL" ? "Overview across all of your accounts." : "Insights for a single account."}
+        subtitle="Insights for your selected account."
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <button onClick={() => setShowQuickAdd(true)} className="btn-primary text-xs"><Plus size={14} /> New Transaction</button>
@@ -107,23 +116,22 @@ const DashboardPage: React.FC = () => {
       <div className="flex justify-center">
         <select
           className="select text-xs min-w-[220px]"
-          value={selectedAccountId === "ALL" ? "ALL" : String(selectedAccountId)}
-          onChange={(e) => setSelectedAccountId(e.target.value === "ALL" ? "ALL" : Number(e.target.value))}
+          value={selectedAccountId !== null ? String(selectedAccountId) : ""}
+          onChange={(e) => setSelectedAccountId(Number(e.target.value))}
         >
-          <option value="ALL">All accounts</option>
-          {accounts.map((a) => <option key={a.id} value={a.id}>{a.icon} {a.name}</option>)}
+          {accounts.filter(a => !a.isCreditCard).map((a) => <option key={a.id} value={a.id}>{a.icon} {a.name}</option>)}
         </select>
       </div>
 
       {alerts.length > 0 && (
-        <div className="card p-4 flex flex-col gap-2 border border-amber-100 bg-amber-50">
+        <div className="card p-4 flex flex-col gap-2 border border-amber-100 dark:border-amber-900 bg-amber-50 dark:bg-amber-950">
           <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2"><AlertTriangle className="text-amber-500" size={16} /><p className="text-xs font-semibold text-amber-800 uppercase tracking-wide">Budget alerts - {monthName}</p></div>
-            <span className="text-[11px] text-amber-600">{alerts.length} at risk</span>
+            <div className="flex items-center gap-2"><AlertTriangle className="text-amber-500" size={16} /><p className="text-xs font-semibold text-amber-800 dark:text-amber-300 uppercase tracking-wide">Budget alerts - {monthName}</p></div>
+            <span className="text-[11px] text-amber-600 dark:text-amber-400">{alerts.length} at risk</span>
           </div>
           <div className="space-y-1.5">
             {alerts.map((b) => (
-              <div key={b.id} className="flex items-center justify-between text-xs text-amber-900">
+              <div key={b.id} className="flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
                 <div className="flex items-center gap-2"><span className="w-6 h-6 rounded-lg flex items-center justify-center text-base" style={{ backgroundColor: b.categoryColor + "20" }}>{b.categoryIcon}</span><span className="font-medium">{b.categoryName}</span></div>
                 <div className="text-right"><p className="font-semibold">{Math.round(b.percentage)}% used</p><p className="text-[11px]">{b.status === "OVER" ? "Over by" : "Remaining"} EUR {Math.abs(b.remainingAmount).toFixed(2)}</p></div>
               </div>

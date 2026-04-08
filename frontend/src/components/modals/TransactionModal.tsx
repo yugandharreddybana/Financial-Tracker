@@ -171,9 +171,9 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md animate-fade-in max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
-          <h2 className="text-base font-semibold text-gray-900">
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md animate-fade-in max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
             {transaction ? "Edit Transaction" : "Add Transaction"}
           </h2>
           <div className="flex items-center gap-2">
@@ -182,19 +182,19 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={scanning}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               {scanning ? <LoadingSpinner size="sm" /> : <Camera size={14} />}
               {scanning ? "Scanning..." : "Scan Receipt"}
             </button>
-            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg">
-              <X size={18} className="text-gray-500" />
+            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+              <X size={18} className="text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-          <div className="flex rounded-xl overflow-hidden border border-gray-200">
+          <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
             {(["INCOME", "EXPENSE"] as TransactionType[]).map((t) => (
               <label
                 key={t}
@@ -202,7 +202,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
                   "flex-1 py-2.5 text-center text-sm font-medium cursor-pointer transition-colors",
                   selectedType === t
                     ? (t === "INCOME" ? "bg-green-600 text-white" : "bg-red-600 text-white")
-                    : "bg-white text-gray-500 hover:bg-gray-50"
+                    : "bg-white dark:bg-gray-800 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700"
                 )}
               >
                 <input type="radio" value={t} {...register("type")} className="hidden" />
@@ -255,7 +255,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
           </div>
 
           {selectedType === "EXPENSE" && (
-            <p className="text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2 flex items-center gap-1.5">
+            <p className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950 rounded-lg px-3 py-2 flex items-center gap-1.5">
               <Leaf size={12} /> CO2 footprint will be calculated automatically based on category
             </p>
           )}
@@ -266,13 +266,13 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
           </div>
 
           {!transaction && (
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
               <button
                 type="button"
                 onClick={() => setIsRecurring((v) => !v)}
                 className={clsx(
                   "w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors",
-                  isRecurring ? "bg-indigo-50 text-indigo-700" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  isRecurring ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400" : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 )}
               >
                 <span className="flex items-center gap-2">
@@ -285,7 +285,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
               </button>
 
               {isRecurring && (
-                <div className="px-4 py-3 bg-indigo-50/60 border-t border-indigo-100">
+                <div className="px-4 py-3 bg-indigo-50/60 dark:bg-indigo-950/60 border-t border-indigo-100 dark:border-indigo-900">
                   <label className="label text-indigo-700">Repeat every</label>
                   <div className="grid grid-cols-4 gap-2 mt-1">
                     {FREQUENCIES.map((f) => (
@@ -295,7 +295,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
                         onClick={() => setFrequency(f)}
                         className={clsx(
                           "py-2 rounded-lg text-xs font-semibold border transition-colors",
-                          frequency === f ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300"
+                          frequency === f ? "bg-indigo-600 text-white border-indigo-600" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-300"
                         )}
                       >
                         {f.charAt(0) + f.slice(1).toLowerCase()}

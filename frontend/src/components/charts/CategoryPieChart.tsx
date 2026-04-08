@@ -45,7 +45,6 @@ const CategoryPieChart: React.FC<Props> = ({ data }) => {
                 borderRadius: "12px",
                 border: "1px solid #e2e8f0",
                 fontSize: "12px",
-                backgroundColor: "#fff",
               }}
             />
             <Legend

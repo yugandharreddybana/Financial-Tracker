@@ -2,6 +2,8 @@ package com.financetracker.service;
 
 import com.financetracker.entity.Transaction;
 import com.financetracker.entity.User;
+import com.financetracker.repository.BankAccountRepository;
+import com.financetracker.repository.LoanRepository;
 import com.financetracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +18,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DashboardService {
         private final TransactionRepository txRepo;
+        private final BankAccountRepository bankRepo;
+        private final LoanRepository loanRepo;
         private final UserService userService;
 
         public Map<String, Object> getStats(Long bankAccountId) {
@@ -184,21 +188,32 @@ public class DashboardService {
 
         public Map<String, Object> getNetWorth(Long bankAccountId) {
                 User u = userService.getCurrentUser();
-                var txs = txRepo.findByUserOrderByDateDescCreatedAtDesc(u);
-                var filtered = bankAccountId == null ? txs
-                                : txs.stream()
-                                                .filter(t -> t.getBankAccount() != null
-                                                                && t.getBankAccount().getId().equals(bankAccountId))
-                                                .toList();
 
-                BigDecimal assets = filtered.stream()
-                                .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
-                                .map(Transaction::getAmount)
+                // Total assets = sum of all bank account balances (exclude credit cards)
+                var allAccounts = bankRepo.findByUserOrderByNameAsc(u);
+                BigDecimal assets;
+                if (bankAccountId != null) {
+                        assets = allAccounts.stream()
+                                .filter(a -> a.getId().equals(bankAccountId) && !Boolean.TRUE.equals(a.getIsCreditCard()))
+                                .map(a -> a.getCurrentBalance())
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-                BigDecimal liabilities = filtered.stream()
-                                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
-                                .map(Transaction::getAmount)
+                } else {
+                        assets = allAccounts.stream()
+                                .filter(a -> !Boolean.TRUE.equals(a.getIsCreditCard()))
+                                .map(a -> a.getCurrentBalance())
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+                }
+
+                // Total liabilities = credit card used amounts + loan remaining amounts
+                BigDecimal creditCardLiabilities = allAccounts.stream()
+                        .filter(a -> Boolean.TRUE.equals(a.getIsCreditCard()))
+                        .map(a -> a.getCreditUsed() != null ? a.getCreditUsed() : BigDecimal.ZERO)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal loanLiabilities = loanRepo.findByUserOrderByCreatedAtDesc(u).stream()
+                        .filter(l -> Boolean.TRUE.equals(l.getActive()))
+                        .map(l -> l.getTotalAmount().subtract(l.getAmountPaid()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal liabilities = creditCardLiabilities.add(loanLiabilities);
                 BigDecimal nw = assets.subtract(liabilities);
 
                 var history = new ArrayList<Map<String, Object>>();

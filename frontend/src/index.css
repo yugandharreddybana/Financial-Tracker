@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
 }
 
 #root {
@@ -11,7 +11,8 @@ body {
 }
 
 .card {
-  @apply bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200;
+  @apply bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200
+         dark:bg-gray-900 dark:border-gray-800;
 }
 
 .btn-primary {
@@ -19,19 +20,22 @@ body {
 }
 
 .btn-secondary {
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700;
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700
+         dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300;
 }
 
 .badge-soft {
-  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700;
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700
+         dark:bg-gray-800 dark:text-gray-300;
 }
 
 .input, .select {
-  @apply w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  @apply w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+         dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-500;
 }
 
 .label {
-  @apply block text-xs font-medium text-gray-600 mb-1;
+  @apply block text-xs font-medium text-gray-600 mb-1 dark:text-gray-400;
 }
 
 .table-basic {
@@ -39,24 +43,47 @@ body {
 }
 
 .table-basic thead {
-  @apply bg-gray-50;
+  @apply bg-gray-50 dark:bg-gray-800;
 }
 
 .table-basic th {
-  @apply px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500;
+  @apply px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400;
 }
 
 .table-basic td {
-  @apply px-3 py-2 align-middle text-xs text-gray-700 border-t border-gray-100;
+  @apply px-3 py-2 align-middle text-xs text-gray-700 border-t border-gray-100
+         dark:text-gray-300 dark:border-gray-800;
 }
 
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  @apply bg-gray-300 rounded-full dark:bg-gray-700;
 }
 
 .recharts-default-tooltip {
   border-radius: 12px !important;
   border-color: #e5e7eb !important;
   box-shadow: 0 10px 25px rgba(15,23,42,0.08) !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }

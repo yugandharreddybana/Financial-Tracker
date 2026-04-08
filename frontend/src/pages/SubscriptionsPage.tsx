@@ -90,23 +90,23 @@ const SubscriptionsPage: React.FC = () => {
       {items.length === 0 ? (
         <div className="card p-8 flex flex-col items-center text-center gap-2">
           <CreditCard size={32} className="text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-900">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             No clear subscriptions detected yet
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
             Once you have a few months of recurring charges (like Netflix, Spotify, or gym
             memberships), they will appear here.
           </p>
         </div>
       ) : (
         <div className="card p-5">
-          <div className="flex items-center justify-between mb-3 text-xs text-slate-500">
+          <div className="flex items-center justify-between mb-3 text-xs text-slate-500 dark:text-slate-400">
             <span>{items.length} recurring merchants detected</span>
             <span>
               Approx. monthly spend: <span className="font-semibold">€{total.toFixed(2)}</span>
             </span>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-gray-800">
             {items.map((s) => (
               <div
                 key={s.merchant + s.lastChargeDate}
@@ -120,15 +120,15 @@ const SubscriptionsPage: React.FC = () => {
                     {s.categoryIcon}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{s.merchant}</p>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{s.merchant}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
                       {s.categoryName}
                       {s.bankAccountName ? ` · ${s.bankAccountName}` : ""}
                     </p>
                   </div>
                 </div>
                 <div className="text-right text-xs">
-                  <p className="font-semibold text-slate-900">
+                  <p className="font-semibold text-slate-900 dark:text-white">
                     {s.currencySymbol}
                     {s.avgAmount.toFixed(2)} / month
                   </p>
@@ -149,11 +149,11 @@ const SubscriptionsPage: React.FC = () => {
 
       {aiSuggestions.length > 0 && (
         <div className="card p-5 mt-5">
-          <h3 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
             <Sparkles size={16} className="text-amber-500" />
             AI suggestions
           </h3>
-          <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1">
+          <ul className="list-disc pl-5 text-sm text-slate-700 dark:text-slate-300 space-y-1">
             {aiSuggestions.map((s, i) => (
               <li key={i}>{s}</li>
             ))}

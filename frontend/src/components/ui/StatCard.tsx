@@ -9,15 +9,15 @@ interface Props {
 }
 
 const badge = {
-  positive: "bg-green-100 text-green-700",
-  negative: "bg-red-100 text-red-700",
-  neutral:  "bg-gray-100 text-gray-600",
+  positive: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
+  negative: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400",
+  neutral:  "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
 };
 
 const StatCard: React.FC<Props> = ({ label, value, trend, variant = "neutral" }) => (
   <div className="card p-5">
-    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{label}</p>
-    <p className="text-2xl font-bold text-gray-900">
+    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">{label}</p>
+    <p className="text-2xl font-bold text-gray-900 dark:text-white">
       {typeof value === "number" ? `€${value.toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : value}
     </p>
     {trend && (

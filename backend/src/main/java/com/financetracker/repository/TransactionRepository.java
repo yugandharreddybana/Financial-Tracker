@@ -44,4 +44,6 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> {
 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.user=:user AND t.type='EXPENSE' AND YEAR(t.date)=:year")
     BigDecimal sumExpenseByYear(User user, int year);
+
+    List<Transaction> findByUserAndBankAccountIdOrderByDateDescCreatedAtDesc(User user, Long bankAccountId);
 }

@@ -14,6 +14,9 @@ public class BankAccount {
     private String currencyName;
     private String country;
     @Builder.Default @Column(precision = 15, scale = 2) private BigDecimal currentBalance = BigDecimal.ZERO;
+    @Builder.Default private Boolean isCreditCard = false;
+    @Builder.Default @Column(precision = 15, scale = 2) private BigDecimal creditLimit = BigDecimal.ZERO;
+    @Builder.Default @Column(precision = 15, scale = 2) private BigDecimal creditUsed = BigDecimal.ZERO;
     @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id",nullable=false) private User user;
     @Builder.Default private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -63,34 +63,34 @@ const AIInsightsPage: React.FC = () => {
   return (
     <div>
       <PageHeader title="AI Financial Insights" subtitle="Personalised analysis powered by Google Gemini with MCP tool access"/>
-      <div className="bg-gradient-to-r from-primary-50 to-purple-50 rounded-2xl border border-primary-100 p-5 mb-5">
+      <div className="bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-950 dark:to-purple-950 rounded-2xl border border-primary-100 dark:border-primary-900 p-5 mb-5">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0"><Sparkles size={18} className="text-primary-600"/></div>
-          <div><h3 className="font-semibold text-gray-900 text-sm mb-1">How it works</h3><p className="text-sm text-gray-600">Gemini AI uses MCP (Model Context Protocol) tools to securely access your financial data in real-time. It can query your transactions, budgets, goals, and more to provide personalised, context-aware advice. No data is stored externally.</p></div>
+          <div><h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">How it works</h3><p className="text-sm text-gray-600 dark:text-gray-300">Gemini AI uses MCP (Model Context Protocol) tools to securely access your financial data in real-time. It can query your transactions, budgets, goals, and more to provide personalised, context-aware advice. No data is stored externally.</p></div>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2"><TrendingUp size={18} className="text-blue-600"/><h3 className="text-sm font-semibold text-gray-900">Spending Insights</h3></div>
+            <div className="flex items-center gap-2"><TrendingUp size={18} className="text-blue-600"/><h3 className="text-sm font-semibold text-gray-900 dark:text-white">Spending Insights</h3></div>
             <button onClick={handleGetInsights} disabled={loading==="insights"||transactions.length===0} className="btn-primary text-xs">{loading==="insights"?<><LoadingSpinner size="sm"/>Analysing...</>:<><Sparkles size={13}/>Analyse</>}</button>
           </div>
           {insights?(
             <div>
               {insights.source&&<p className="text-xs text-gray-400 mb-3">{aiSource(insights.source)}</p>}
-              <div className="space-y-2">{(insights.insights||[]).map((insight,i)=><div key={i} className="flex gap-3 bg-blue-50 rounded-xl px-4 py-3"><span className="text-blue-500 flex-shrink-0 mt-0.5">💡</span><p className="text-sm text-blue-800">{insight}</p></div>)}</div>
+              <div className="space-y-2">{(insights.insights||[]).map((insight,i)=><div key={i} className="flex gap-3 bg-blue-50 dark:bg-blue-950 rounded-xl px-4 py-3"><span className="text-blue-500 flex-shrink-0 mt-0.5">💡</span><p className="text-sm text-blue-800 dark:text-blue-300">{insight}</p></div>)}</div>
             </div>
           ):<div className="text-center py-8"><TrendingUp size={32} className="text-gray-200 mx-auto mb-2"/><p className="text-sm text-gray-400">{transactions.length===0?"Add transactions first":"Click Analyse for spending patterns"}</p></div>}
         </div>
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2"><Lightbulb size={18} className="text-yellow-500"/><h3 className="text-sm font-semibold text-gray-900">Savings Tips</h3></div>
+            <div className="flex items-center gap-2"><Lightbulb size={18} className="text-yellow-500"/><h3 className="text-sm font-semibold text-gray-900 dark:text-white">Savings Tips</h3></div>
             <button onClick={handleGetTips} disabled={loading==="tips"||transactions.length===0} className="btn-primary text-xs">{loading==="tips"?<><LoadingSpinner size="sm"/>Generating...</>:<><Sparkles size={13}/>Get Tips</>}</button>
           </div>
           {savings?(
             <div>
               {savings.source&&<p className="text-xs text-gray-400 mb-3">{aiSource(savings.source)}</p>}
-              <div className="space-y-2">{(savings.tips||[]).map((tip,i)=><div key={i} className="flex gap-3 bg-yellow-50 rounded-xl px-4 py-3"><span className="text-yellow-500 flex-shrink-0 mt-0.5"><Target size={14}/></span><p className="text-sm text-yellow-800">{tip}</p></div>)}</div>
+              <div className="space-y-2">{(savings.tips||[]).map((tip,i)=><div key={i} className="flex gap-3 bg-yellow-50 dark:bg-yellow-950 rounded-xl px-4 py-3"><span className="text-yellow-500 flex-shrink-0 mt-0.5"><Target size={14}/></span><p className="text-sm text-yellow-800 dark:text-yellow-300">{tip}</p></div>)}</div>
             </div>
           ):<div className="text-center py-8"><Lightbulb size={32} className="text-gray-200 mx-auto mb-2"/><p className="text-sm text-gray-400">{transactions.length===0?"Add transactions first":"Click Get Tips for personalised savings advice"}</p></div>}
         </div>
@@ -100,17 +100,17 @@ const AIInsightsPage: React.FC = () => {
       <div className="card p-5">
         <div className="flex items-center gap-2 mb-4">
           <Bot size={18} className="text-purple-600"/>
-          <h3 className="text-sm font-semibold text-gray-900">Ask Your Finance AI</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Ask Your Finance AI</h3>
           <span className="text-[11px] text-gray-400 ml-auto">Gemini + MCP Tools</span>
         </div>
-        <div className="bg-gray-50 rounded-xl border border-gray-100 h-80 overflow-y-auto p-4 mb-3 space-y-3">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 h-80 overflow-y-auto p-4 mb-3 space-y-3">
           {chatMessages.length===0 && (
             <div className="text-center py-10">
               <Bot size={40} className="text-gray-200 mx-auto mb-3"/>
               <p className="text-sm text-gray-400 mb-2">Ask me anything about your finances</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {["What are my biggest expenses?","Am I on track with my budgets?","How's my financial health?","What subscriptions can I cancel?"].map(q => (
-                  <button key={q} onClick={()=>{setChatInput(q);}} className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700 transition-colors">{q}</button>
+                  <button key={q} onClick={()=>{setChatInput(q);}} className="text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-950 hover:border-primary-200 dark:hover:border-primary-800 hover:text-primary-700 dark:hover:text-primary-400 transition-colors">{q}</button>
                 ))}
               </div>
             </div>
@@ -118,7 +118,7 @@ const AIInsightsPage: React.FC = () => {
           {chatMessages.map((m,i)=>(
             <div key={i} className={`flex gap-2 ${m.role==="user"?"justify-end":""}`}>
               {m.role==="assistant" && <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5"><Bot size={14} className="text-purple-600"/></div>}
-              <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${m.role==="user"?"bg-primary-600 text-white":"bg-white border border-gray-100 text-gray-800"}`}>
+              <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${m.role==="user"?"bg-primary-600 text-white":"bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-800 dark:text-gray-200"}`}>
                 <p className="whitespace-pre-wrap">{m.content}</p>
                 {m.toolCalls && m.toolCalls.length>0 && (
                   <div className="mt-2 flex flex-wrap gap-1">

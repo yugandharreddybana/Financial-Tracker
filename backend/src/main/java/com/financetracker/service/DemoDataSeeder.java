@@ -102,6 +102,11 @@ public class DemoDataSeeder implements CommandLineRunner {
 
         // {description, amount, type, category, account, monthsAgo, dayOfMonth, note}
         Object[][] txData = {
+                // ... (data rows)
+        LocalDate today = LocalDate.now();
+
+        // {description, amount, type, category, account, monthsAgo, dayOfMonth, note}
+        Object[][] txData = {
                 // ─── Current month ───
                 {"Salary", 3200, "INCOME", salary, main, 0, 1, "Monthly salary deposit"},
                 {"Freelance project", 850, "INCOME", freelance, usd, 0, 3, "Logo design for TechCorp"},
@@ -153,6 +158,7 @@ public class DemoDataSeeder implements CommandLineRunner {
                 {"Heating bill", 110.00, "EXPENSE", utilities, main, 5, 9, "Gas heating bill"},
         };
 
+        List<Transaction> transactionsToSave = new ArrayList<>();
         for (Object[] row : txData) {
             Transaction.TransactionType type = "INCOME".equals(row[2])
                     ? Transaction.TransactionType.INCOME : Transaction.TransactionType.EXPENSE;
@@ -188,7 +194,7 @@ public class DemoDataSeeder implements CommandLineRunner {
                     .user(user)
                     .co2Kg(co2)
                     .build();
-            txRepo.save(tx);
+            transactionsToSave.add(tx);
 
             // Accumulate balance delta per account (same logic as TransactionService)
             BigDecimal delta = type == Transaction.TransactionType.INCOME
@@ -200,6 +206,7 @@ public class DemoDataSeeder implements CommandLineRunner {
                 ccUsed = ccUsed.add(BigDecimal.valueOf(amt));
             }
         }
+        txRepo.saveAll(transactionsToSave);
 
         // ── Compute final bank balances ─────────────────────────────
         // Base balances represent money in accounts before the 6-month demo window

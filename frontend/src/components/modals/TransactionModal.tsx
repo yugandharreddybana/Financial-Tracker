@@ -69,8 +69,8 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
   useEffect(() => {
     if (!isOpen) return;
 
-    categoryService.getAll().then((r) => setCategories(r.data)).catch(() => {});
-    bankAccountService.getAll().then((r) => setBankAccounts(r.data)).catch(() => {});
+      categoryService.getAll().then((r) => setCategories(r.data)).catch(() => toast.error("Failed to load categories"));
+      bankAccountService.getAll().then((r) => setBankAccounts(r.data)).catch(() => toast.error("Failed to load bank accounts"));
 
     if (transaction) {
       reset({

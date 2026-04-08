@@ -36,15 +36,20 @@ const MonthlyReviewPage: React.FC = () => {
       const d = res.data;
       setSummary({ ...d, totalIncome:Number(d.totalIncome)||0, totalExpenses:Number(d.totalExpenses)||0, netSavings:Number(d.netSavings)||0, savingsRate:Number(d.savingsRate)||0, avgDailySpend:Number(d.avgDailySpend)||0, topCategories:Array.isArray(d.topCategories)?d.topCategories:[], largestTransactions:Array.isArray(d.largestTransactions)?d.largestTransactions:[] });
       setHighlights([]); setImprovements([]);
-      try { const noteRes = await api.get<{year:number;month:number;note:string}>(`/monthly-notes?year=${new Date(from).getFullYear()}&month=${new Date(from).getMonth()+1}`); setNote(noteRes.data?.note||""); } catch { setNote(""); }
+        try { 
+          const noteRes = await api.get<{year:number;month:number;note:string}>(`/monthly-notes?year=${new Date(from).getFullYear()}&month=${new Date(from).getMonth()+1}`); 
+          setNote(noteRes.data?.note||""); 
+        } catch { 
+          setNote(""); 
+          toast.error("Failed to load monthly notes");
+        }
     } catch { toast.error("Failed to load review"); }
     finally { setLoading(false); }
   };
   useEffect(() => { runReview(); }, []); // eslint-disable-line
 
   const handleAskAi = async () => {
-    if (!summary) { toast("Run a review first"); return; }
-    setAiLoading(true);
+      if (!summary) { toast.error("Run a review first"); return; }
     try { const res = await aiService.getMonthlyReview({summary}); setHighlights(Array.isArray(res.data.highlights)?res.data.highlights:[]); setImprovements(Array.isArray(res.data.improvements)?res.data.improvements:[]); }
     catch { toast.error("AI service unavailable"); }
     finally { setAiLoading(false); }

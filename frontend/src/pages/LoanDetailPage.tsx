@@ -56,7 +56,13 @@ const LoanDetailPage: React.FC = () => {
       const [loansRes, accRes] = await Promise.all([loanService.getAll(), bankAccountService.getAll()]);
       setLoans(Array.isArray(loansRes.data) ? loansRes.data : []);
       setAccounts(Array.isArray(accRes.data) ? accRes.data : []);
-      try { const sched = await loanService.getAmortization(Number(id)); setSchedule(Array.isArray(sched.data) ? sched.data : []); } catch { setSchedule([]); }
+        try { 
+          const sched = await loanService.getAmortization(Number(id)); 
+          setSchedule(Array.isArray(sched.data) ? sched.data : []); 
+        } catch { 
+          setSchedule([]); 
+          toast.error("Failed to load amortization schedule");
+        }
     } catch { toast.error("Failed to load loan"); }
     finally { setLoading(false); }
   };

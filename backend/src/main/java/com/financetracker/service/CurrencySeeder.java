@@ -1,5 +1,6 @@
 package com.financetracker.service;
 
+import com.financetracker.entity.Currency;
 import com.financetracker.repository.CurrencyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -227,15 +227,32 @@ public class CurrencySeeder implements ApplicationRunner {
     };
 
     @Override
-    @Transactional
     public void run(ApplicationArguments args) {
-        // Use INSERT ... ON CONFLICT DO NOTHING so this is fully idempotent:
-        // safe on a fresh DB, safe on re-deploy, safe when adding new entries.
+        // Check-then-save per row so the app never crashes on a DB constraint issue.
+        // Each save() is its own transaction — a failure on one row does not affect others.
+        // Once the Supabase SQL is run to fix constraints, a redeploy seeds all 197 rows.
         int inserted = 0;
+        int skipped  = 0;
+        int errors   = 0;
         for (String[] row : CURRENCIES) {
-            repo.insertIfAbsent(row[0], row[1], row[2], row[3], row[4]);
-            inserted++;
+            try {
+                if (!repo.existsByCodeAndCountry(row[0], row[3])) {
+                    Currency c = new Currency();
+                    c.setCode(row[0]);
+                    c.setSymbol(row[1]);
+                    c.setName(row[2]);
+                    c.setCountry(row[3]);
+                    c.setFlag(row[4]);
+                    repo.save(c);
+                    inserted++;
+                } else {
+                    skipped++;
+                }
+            } catch (Exception e) {
+                log.warn("Could not seed currency {}/{}: {}", row[0], row[3], e.getMessage());
+                errors++;
+            }
         }
-        log.info("Currency seeding complete ({} rows processed, duplicates silently skipped).", inserted);
+        log.info("Currency seeding complete: {} inserted, {} skipped, {} errors.", inserted, skipped, errors);
     }
 }

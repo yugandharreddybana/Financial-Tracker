@@ -20,9 +20,9 @@ const schema = z.object({
   currencyId: z.number().min(1, "Select a currency"),
   icon: z.string(),
   color: z.string(),
-  currentBalance: z.string().optional().transform((v) => (v&&v.trim().length ? Number(v) : 0)).refine((v) => !Number.isNaN(v),{message:"Must be a number"}),
+  currentBalance: z.coerce.number().default(0),
   isCreditCard: z.boolean().optional().default(false),
-  creditLimit: z.string().optional().transform((v) => (v&&v.trim().length ? Number(v) : 0)).refine((v) => !Number.isNaN(v),{message:"Must be a number"}),
+  creditLimit: z.coerce.number().default(0),
 });
 type F = z.infer<typeof schema>;
 
@@ -257,7 +257,7 @@ const BankAccountsPage: React.FC = () => {
               <h2 className="text-base font-semibold text-gray-900 dark:text-white">{isCreditCard?"Add Credit Card":"Add Bank Account"}</h2>
               <button onClick={() => { setShowModal(false); setCurrSearch(""); }} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18}/></button>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+            <form onSubmit={handleSubmit(onSubmit, () => toast.error("Please select a currency and fill in all required fields"))} className="p-5 space-y-4">
               <div><label className="label">Account Name *</label><input {...register("name")} className="input" placeholder={isCreditCard?"e.g. Visa Gold":"e.g. AIB Current Account"}/>{errors.name&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                 <input type="checkbox" id="isCreditCard" {...register("isCreditCard")} className="w-4 h-4 text-primary-600 rounded" onChange={(e) => { setValue("isCreditCard", e.target.checked); if(e.target.checked) setValue("icon","💳"); else setValue("icon","🏦"); }}/>

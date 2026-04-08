@@ -24,14 +24,18 @@ public class DataMigrationRunner implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        currencyRepo.findByCode("USD").ifPresent(usd -> {
-            int updated = em.createNativeQuery(
-                    "UPDATE finance_app.bank_accounts SET currency_id = :cid WHERE currency_id IS NULL")
-                    .setParameter("cid", usd.getId())
-                    .executeUpdate();
-            if (updated > 0) {
-                log.info("Migration: set default currency (USD) on {} bank accounts", updated);
-            }
-        });
+        // Backfill any bank_accounts that have currency_id = NULL (rows created before the currency FK was added).
+        // Default to EUR (Ireland) if available, otherwise fall back to USD.
+        Currency fallback = currencyRepo.findFirstByCode("EUR")
+                .orElseGet(() -> currencyRepo.findFirstByCode("USD").orElse(null));
+        if (fallback == null) return;
+        int updated = em.createNativeQuery(
+                "UPDATE finance_app.bank_accounts SET currency_id = :cid WHERE currency_id IS NULL")
+                .setParameter("cid", fallback.getId())
+                .executeUpdate();
+        if (updated > 0) {
+            log.info("Migration: set default currency ({}) on {} bank accounts with null currency_id",
+                    fallback.getCode(), updated);
+        }
     }
 }

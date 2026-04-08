@@ -62,16 +62,10 @@ const BankAccountsPage: React.FC = () => {
   };
   useEffect(() => { load(); loadCurrencies(); }, []);
 
-  // Eurozone countries all share the EUR currency code
-  const EUROZONE_COUNTRIES = ["ireland", "germany", "france", "spain", "italy", "portugal", "netherlands", "belgium", "austria", "finland", "greece", "luxembourg", "malta", "cyprus", "estonia", "latvia", "lithuania", "slovakia", "slovenia"];
-
   const filteredCurrs = currencies.filter(c => {
     if (!currSearch) return true;
     const q = currSearch.toLowerCase();
-    if (c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q)) return true;
-    // Allow finding EUR by typing any eurozone country name
-    if (c.code === "EUR" && EUROZONE_COUNTRIES.some(kw => kw.startsWith(q))) return true;
-    return false;
+    return c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
   });
 
   const onSubmit = async (data: F) => {
@@ -120,7 +114,7 @@ const BankAccountsPage: React.FC = () => {
 
   return (
     <div>
-      <PageHeader title="Bank Accounts & Cards" subtitle="Manage your accounts, credit cards, and balances." actions={<button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15}/> Add Account</button>} />
+      <PageHeader title="Bank Accounts & Cards" subtitle="Manage your accounts, credit cards, and balances." actions={<button onClick={() => { setShowModal(true); if (currencies.length === 0) loadCurrencies(); }} className="btn-primary"><Plus size={15}/> Add Account</button>} />
 
       {/* Bank Accounts Section */}
       {bankAccounts.length > 0 && (
@@ -289,11 +283,17 @@ const BankAccountsPage: React.FC = () => {
                   {currLoading && currencies.length === 0 && (
                     <p className="text-xs text-gray-400 text-center py-4">Loading currencies…</p>
                   )}
-                  {!currLoading && filteredCurrs.length === 0 && (
+                  {!currLoading && currencies.length === 0 && (
+                    <div className="text-center py-4">
+                      <p className="text-xs text-red-500 mb-2">Failed to load currencies.</p>
+                      <button type="button" onClick={loadCurrencies} className="text-xs text-primary-600 underline">Try again</button>
+                    </div>
+                  )}
+                  {!currLoading && currencies.length > 0 && filteredCurrs.length === 0 && (
                     <p className="text-xs text-gray-400 text-center py-4">No currencies found</p>
                   )}
                   {filteredCurrs.map(c=>(
-                    <button type="button" key={c.code} onClick={() => { setValue("currencyId", c.id); setCurrSearch(""); }}
+                    <button type="button" key={`${c.code}-${c.country}`} onClick={() => { setValue("currencyId", c.id, { shouldValidate: true }); setCurrSearch(""); }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors ${selectedCurrId===c.id?"bg-primary-50 dark:bg-primary-950":""}`}>
                       <span className="text-lg flex-shrink-0">{c.flag}</span>
                       <div className="flex-1 min-w-0">
@@ -307,6 +307,7 @@ const BankAccountsPage: React.FC = () => {
                     </button>
                   ))}
                 </div>
+                {errors.currencyId && <p className="text-xs text-red-500 mt-1">Please select a currency</p>}
               </div>
               <div><label className="label">{isCreditCard?"Current Balance Owed":"Current Balance"}</label>
                 <div className="relative"><input {...register("currentBalance" as const)} className="input pr-10" placeholder="e.g. 1250.00"/><span className="absolute inset-y-0 right-3 flex items-center text-xs text-gray-400">{selectedCurr?.code||"EUR"}</span></div>

@@ -3,13 +3,17 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "currencies", schema = "finance_app")
+@Table(
+    name = "currencies",
+    schema = "finance_app",
+    uniqueConstraints = @UniqueConstraint(name = "uq_currency_code_country", columnNames = {"code", "country"})
+)
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class Currency {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, length = 10)
     private String code;
 
     @Column(nullable = false, length = 20)

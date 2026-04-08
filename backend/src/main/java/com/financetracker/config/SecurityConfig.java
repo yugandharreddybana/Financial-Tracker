@@ -36,7 +36,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(a -> a
                 // Allow preflight OPTIONS requests without authentication
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**", "/h2-console/**", "/health").permitAll()
+                .requestMatchers("/api/auth/**", "/h2-console/**", "/health", "/api/currencies").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

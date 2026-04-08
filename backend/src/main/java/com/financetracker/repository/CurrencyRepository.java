@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
-    Optional<Currency> findByCode(String code);
+    Optional<Currency> findFirstByCode(String code);
     List<Currency> findAllByOrderByCountryAsc();
     boolean existsByCode(String code);
+    boolean existsByCodeAndCountry(String code, String country);
 }

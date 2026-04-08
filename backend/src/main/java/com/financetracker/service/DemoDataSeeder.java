@@ -82,9 +82,9 @@ public class DemoDataSeeder implements CommandLineRunner {
                 shopping, entertainment, health, housing, utilities, education, travel));
 
         // ── Bank Accounts (initial balance = 0; computed after seeding txns) ──
-        Currency eurCurrency = currencyRepo.findByCode("EUR").orElseThrow(() ->
+        Currency eurCurrency = currencyRepo.findFirstByCode("EUR").orElseThrow(() ->
                 new IllegalStateException("EUR currency not found — CurrencySeeder must run first"));
-        Currency usdCurrency = currencyRepo.findByCode("USD").orElseThrow(() ->
+        Currency usdCurrency = currencyRepo.findFirstByCode("USD").orElseThrow(() ->
                 new IllegalStateException("USD currency not found — CurrencySeeder must run first"));
         BankAccount main = BankAccount.builder().name("AIB Current").icon("🏦").color("#3B82F6")
                 .currency(eurCurrency)

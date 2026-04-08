@@ -64,7 +64,25 @@ public class CurrencySeeder implements ApplicationRunner {
         {"EGP","£","Egyptian Pound","Egypt","🇪🇬"},
         {"ERN","Nfk","Eritrean Nakfa","Eritrea","🇪🇷"},
         {"ETB","Br","Ethiopian Birr","Ethiopia","🇪🇹"},
-        {"EUR","€","Euro","Eurozone","🇪🇺"},
+        {"EUR","€","Euro","Austria","🇦🇹"},
+        {"EUR","€","Euro","Belgium","🇧🇪"},
+        {"EUR","€","Euro","Cyprus","🇨🇾"},
+        {"EUR","€","Euro","Estonia","🇪🇪"},
+        {"EUR","€","Euro","Finland","🇫🇮"},
+        {"EUR","€","Euro","France","🇫🇷"},
+        {"EUR","€","Euro","Germany","🇩🇪"},
+        {"EUR","€","Euro","Greece","🇬🇷"},
+        {"EUR","€","Euro","Ireland","🇮🇪"},
+        {"EUR","€","Euro","Italy","🇮🇹"},
+        {"EUR","€","Euro","Latvia","🇱🇻"},
+        {"EUR","€","Euro","Lithuania","🇱🇹"},
+        {"EUR","€","Euro","Luxembourg","🇱🇺"},
+        {"EUR","€","Euro","Malta","🇲🇹"},
+        {"EUR","€","Euro","Netherlands","🇳🇱"},
+        {"EUR","€","Euro","Portugal","🇵🇹"},
+        {"EUR","€","Euro","Slovakia","🇸🇰"},
+        {"EUR","€","Euro","Slovenia","🇸🇮"},
+        {"EUR","€","Euro","Spain","🇪🇸"},
         {"FJD","FJ$","Fijian Dollar","Fiji","🇫🇯"},
         {"FKP","£","Falkland Islands Pound","Falkland Islands","🇫🇰"},
         {"GBP","£","British Pound","United Kingdom","🇬🇧"},
@@ -182,7 +200,21 @@ public class CurrencySeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (repo.count() > 0) return; // already seeded
+        if (repo.count() > 0) {
+            // DB already seeded — add any newly-added currencies that may be missing
+            for (String[] row : CURRENCIES) {
+                String code = row[0];
+                String country = row[3];
+                boolean exists = repo.existsByCodeAndCountry(code, country);
+                if (!exists) {
+                    repo.save(Currency.builder()
+                        .code(code).symbol(row[1]).name(row[2]).country(country).flag(row[4])
+                        .build());
+                    log.info("Added missing currency: {} ({})", code, country);
+                }
+            }
+            return;
+        }
         log.info("Seeding {} currencies into database...", CURRENCIES.length);
         List<Currency> entities = new java.util.ArrayList<>();
         for (String[] row : CURRENCIES) {

@@ -139,7 +139,7 @@ const LoansPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                 {activeLoans.map(loan => (
                   <div key={loan.id} onClick={() => navigate(`/loans/${loan.id}`)} className="card p-5 relative group cursor-pointer hover:shadow-md transition-shadow">
-                    <button onClick={() => setDeleteLoan(loan)} className="absolute top-3 right-3 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteLoan(loan); }} className="absolute top-3 right-3 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl bg-blue-50 dark:bg-blue-950">{getLoanIcon(loan.loanType)}</div>
                       <div>
@@ -158,7 +158,7 @@ const LoansPage: React.FC = () => {
                       <span className="text-[11px] text-gray-400">{loan.progressPercentage.toFixed(1)}% paid</span>
                       {loan.monthlyInstallment && <span className="text-[11px] text-gray-400">${Number(loan.monthlyInstallment).toFixed(2)}/mo</span>}
                     </div>
-                    <button onClick={() => { setPayLoan(loan); payForm.reset(); }} className="w-full mt-1 py-1.5 text-xs font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-950 hover:bg-primary-100 dark:hover:bg-primary-900 rounded-lg transition-colors flex items-center justify-center gap-1"><DollarSign size={13}/> Make Payment</button>
+                    <button onClick={(e) => { e.stopPropagation(); setPayLoan(loan); payForm.reset(); }} className="w-full mt-1 py-1.5 text-xs font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-950 hover:bg-primary-100 dark:hover:bg-primary-900 rounded-lg transition-colors flex items-center justify-center gap-1"><DollarSign size={13}/> Make Payment</button>
                   </div>
                 ))}
               </div>
@@ -172,7 +172,7 @@ const LoansPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paidLoans.map(loan => (
                   <div key={loan.id} className="card p-5 relative group opacity-70">
-                    <button onClick={() => setDeleteLoan(loan)} className="absolute top-3 right-3 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteLoan(loan); }} className="absolute top-3 right-3 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl bg-green-50 dark:bg-green-950">{getLoanIcon(loan.loanType)}</div>
                       <div>

@@ -1,5 +1,5 @@
 import api from "./api";
-import { BankAccount } from "../types";
+import { BankAccount, CurrencyEntry } from "../types";
 
 const toArray = (data: any): BankAccount[] => {
   if (Array.isArray(data)) return data;
@@ -12,7 +12,12 @@ export const bankAccountService = {
     const res = await api.get<any>("/bank-accounts");
     return { data: toArray(res.data) };
   },
-  create: (payload: { name: string; icon: string; color: string; currencyCode: string; currentBalance?: number; isCreditCard?: boolean; creditLimit?: number }) =>
+  create: (payload: { name: string; icon: string; color: string; currencyId: number; currentBalance?: number; isCreditCard?: boolean; creditLimit?: number }) =>
     api.post("/bank-accounts", payload),
   delete: (id: number) => api.delete(`/bank-accounts/${id}`),
+  payBill: (id: number, amount: number) => api.post(`/bank-accounts/${id}/pay-bill`, { amount }),
+  getCurrencies: async (): Promise<CurrencyEntry[]> => {
+    const res = await api.get<CurrencyEntry[]>("/currencies");
+    return Array.isArray(res.data) ? res.data : [];
+  },
 };

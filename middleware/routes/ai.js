@@ -11,6 +11,16 @@ if (isConfigured()) {
   console.log("ℹ️  No GEMINI_API_KEY — using mock AI responses");
 }
 
+// Safe JSON extractor — handles plain JSON and markdown code-fenced JSON
+function safeParseJSON(value) {
+  if (!value) return null;
+  if (typeof value !== "string") return value;
+  try { return JSON.parse(value); } catch (_) {}
+  const m = value.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (m) try { return JSON.parse(m[1].trim()); } catch (_) {}
+  return null;
+}
+
 // ── Mock responses for demo mode ────────────────────────────────────────────
 const MOCK = {
   insights: {
@@ -81,7 +91,8 @@ router.post("/insights", async (req, res) => {
     );
     if (!result) return res.json(MOCK.insights);
 
-    const data = typeof result.text === "string" ? JSON.parse(result.text) : result.text;
+    const data = safeParseJSON(result.text);
+    if (!data) return res.json(MOCK.insights);
     res.json({ source: "gemini", ...data });
   } catch (err) {
     console.error("AI insights error:", err.message);
@@ -102,7 +113,8 @@ router.post("/savings-tips", async (req, res) => {
     );
     if (!result) return res.json(MOCK.tips);
 
-    const data = typeof result.text === "string" ? JSON.parse(result.text) : result.text;
+    const data = safeParseJSON(result.text);
+    if (!data) return res.json(MOCK.tips);
     res.json({ source: "gemini", ...data });
   } catch (err) {
     console.error("Savings tips error:", err.message);
@@ -174,7 +186,8 @@ router.post("/budget-advice", async (req, res) => {
     );
     if (!result) return res.json(MOCK.budgetAdvice);
 
-    const data = typeof result.text === "string" ? JSON.parse(result.text) : result.text;
+    const data = safeParseJSON(result.text);
+    if (!data) return res.json(MOCK.budgetAdvice);
     res.json({ source: "gemini", ...data });
   } catch (err) {
     console.error("Budget advice error:", err.message);

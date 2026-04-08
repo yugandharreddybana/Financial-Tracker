@@ -94,8 +94,7 @@ const DashboardPage: React.FC = () => {
 
   if (loading || !data) return <LoadingSpinner size="lg" className="py-16" />;
 
-  const { stats, cashFlow } = data;
-  const greetingName = user?.firstName || "there";
+  const { stats, cashFlow } = data;    const selectedAccount = accounts.find(a => a.id === selectedAccountId);  const greetingName = user?.firstName || "there";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const monthName = new Date().toLocaleString("default", { month: "long" });
@@ -143,10 +142,8 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Income (this month)" value={stats.totalIncome} trend="Stable" variant="positive" />
         <StatCard label="Expenses (this month)" value={stats.totalExpenses} trend="Track budgets" variant="negative" />
-        <StatCard label="Net balance" value={stats.balance} trend={stats.balance >= 0 ? "On track" : "Over budget"} variant={stats.balance >= 0 ? "positive" : "negative"} />
-        <StatCard label="Savings rate" value={`${stats.savingsRate}%`} trend="Target: 20%+" variant="neutral" />
+        <StatCard label="Account balance" value={selectedAccount ? Number(selectedAccount.currentBalance) : 0} trend={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "Available funds" : "Overdraft"} variant={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "positive" : "negative"} />
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="card p-4 lg:col-span-2"><MonthlyTrendChart data={stats.monthlyTrend} /></div>
         <div className="card p-4"><CategoryPieChart data={stats.topCategories} /></div>

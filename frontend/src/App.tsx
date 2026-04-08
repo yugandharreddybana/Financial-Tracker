@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAppSelector } from "./hooks/useAppDispatch";
+import { useTheme } from "./hooks/useTheme";
 import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -24,6 +25,7 @@ import LandingPage from "./pages/LandingPage";
 import LoanDetailPage from "./pages/LoanDetailPage";
 
 const App: React.FC = () => {
+  useTheme(); // Ensure saved theme is applied on all pages (login, register, etc.)
   const { token } = useAppSelector(s => s.auth);
   return (
     <Routes>

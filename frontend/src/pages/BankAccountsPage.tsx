@@ -62,9 +62,16 @@ const BankAccountsPage: React.FC = () => {
   };
   useEffect(() => { load(); loadCurrencies(); }, []);
 
+  // Eurozone countries all share the EUR currency code
+  const EUROZONE_COUNTRIES = ["ireland", "germany", "france", "spain", "italy", "portugal", "netherlands", "belgium", "austria", "finland", "greece", "luxembourg", "malta", "cyprus", "estonia", "latvia", "lithuania", "slovakia", "slovenia"];
+
   const filteredCurrs = currencies.filter(c => {
+    if (!currSearch) return true;
     const q = currSearch.toLowerCase();
-    return c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
+    if (c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q)) return true;
+    // Allow finding EUR by typing any eurozone country name
+    if (c.code === "EUR" && EUROZONE_COUNTRIES.some(kw => kw.startsWith(q))) return true;
+    return false;
   });
 
   const onSubmit = async (data: F) => {
@@ -113,7 +120,7 @@ const BankAccountsPage: React.FC = () => {
 
   return (
     <div>
-      <PageHeader title="Bank Accounts & Cards" subtitle="Manage your accounts, credit cards, and balances." actions={<button onClick={() => setShowModal(true)} disabled={loading} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"><Plus size={15}/> Add Account</button>} />
+      <PageHeader title="Bank Accounts & Cards" subtitle="Manage your accounts, credit cards, and balances." actions={<button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15}/> Add Account</button>} />
 
       {/* Bank Accounts Section */}
       {bankAccounts.length > 0 && (

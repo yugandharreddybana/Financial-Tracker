@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import PageHeader from "../components/ui/PageHeader";
 import StatCard from "../components/ui/StatCard";
 import MonthlyTrendChart from "../components/charts/MonthlyTrendChart";
@@ -92,12 +93,32 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  if (loading || !data) return <LoadingSpinner size="lg" className="py-16" />;
-
-  const { stats, cashFlow } = data;    const selectedAccount = accounts.find(a => a.id === selectedAccountId);  const greetingName = user?.firstName || "there";
+  const greetingName = user?.firstName || "there";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const monthName = new Date().toLocaleString("default", { month: "long" });
+
+  if (loading) return <LoadingSpinner size="lg" className="py-16" />;
+
+  if (accounts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="text-5xl mb-4">📊</div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Welcome, {greetingName}!</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          Add a bank account to start tracking your finances and see your dashboard insights.
+        </p>
+        <Link to="/bank-accounts" className="btn-primary inline-flex items-center gap-2">
+          <Plus size={15} /> Add Bank Account
+        </Link>
+      </div>
+    );
+  }
+
+  if (!data) return <LoadingSpinner size="lg" className="py-16" />;
+
+  const { stats, cashFlow } = data;
+  const selectedAccount = accounts.find(a => a.id === selectedAccountId);
 
   return (
     <div id="dashboard-export-root" className="space-y-5">

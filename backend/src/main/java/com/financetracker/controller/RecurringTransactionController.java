@@ -11,5 +11,6 @@ public class RecurringTransactionController {
     @GetMapping public ResponseEntity<List<Map<String,Object>>> getAll(){return ResponseEntity.ok(svc.getAll());}
     @PostMapping public ResponseEntity<Map<String,Object>> create(@RequestBody RecurringRequest req){return ResponseEntity.status(HttpStatus.CREATED).body(svc.create(req));}
     @DeleteMapping("/{id}") public ResponseEntity<Void> delete(@PathVariable Long id){svc.delete(id);return ResponseEntity.noContent().build();}
+    @PutMapping("/{id}") public ResponseEntity<Map<String,Object>> update(@PathVariable Long id,@RequestBody RecurringRequest req){return ResponseEntity.ok(svc.update(id,req));}
     @PostMapping("/process-due") public ResponseEntity<Map<String,Object>> processDue(){return ResponseEntity.ok(svc.processDue());}
 }

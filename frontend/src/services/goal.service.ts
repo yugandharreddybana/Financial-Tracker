@@ -14,6 +14,7 @@ export const goalService = {
   },
   create: (d: any) => api.post("/goals", d),
   delete: (id: number) => api.delete(`/goals/${id}`),
+  update: (id: number, d: any) => api.put(`/goals/${id}`, d),
   contribute: (id: number, amount: number) =>
     api.post(`/goals/${id}/contribute`, { amount }),
 };

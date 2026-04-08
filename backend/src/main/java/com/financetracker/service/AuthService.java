@@ -1,6 +1,7 @@
 package com.financetracker.service;
 import com.financetracker.dto.*;
 import com.financetracker.entity.Category;
+import com.financetracker.entity.PasswordResetToken;
 import com.financetracker.entity.User;
 import com.financetracker.exception.BadRequestException;
 import com.financetracker.repository.*;
@@ -10,12 +11,16 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 @Service @RequiredArgsConstructor
 public class AuthService {
     private static final String PASSWORD_POLICY = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$";
     private final UserRepository userRepo; private final CategoryRepository catRepo;
+    private final PasswordResetTokenRepository resetTokenRepo;
     private final PasswordEncoder encoder; private final JwtUtil jwt; private final AuthenticationManager authManager;
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -34,6 +39,43 @@ public class AuthService {
         String email = normalizeEmail(req.getEmail());
         authManager.authenticate(new UsernamePasswordAuthenticationToken(email,req.getPassword()));
         User u = userRepo.findByEmailIgnoreCase(email).orElseThrow(); return build(u, jwt.generateToken(u));
+    }
+    @Transactional
+    public Map<String,String> forgotPassword(String email) {
+        String normalized = normalizeEmail(email);
+        if (normalized == null || normalized.isBlank()) {
+            throw new BadRequestException("Email is required");
+        }
+        var user = userRepo.findByEmailIgnoreCase(normalized)
+            .orElseThrow(() -> new BadRequestException("If this email is registered, a reset token has been generated"));
+        String token = UUID.randomUUID().toString();
+        var resetToken = PasswordResetToken.builder()
+            .token(token)
+            .user(user)
+            .expiresAt(LocalDateTime.now().plusHours(1))
+            .build();
+        resetTokenRepo.save(resetToken);
+        return Map.of("resetToken", token, "message", "Use this token to reset your password. It expires in 1 hour.");
+    }
+    @Transactional
+    public Map<String,String> resetPassword(String token, String newPassword) {
+        if (token == null || token.isBlank()) {
+            throw new BadRequestException("Reset token is required");
+        }
+        var resetToken = resetTokenRepo.findByTokenAndUsedFalse(token)
+            .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
+        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Reset token has expired");
+        }
+        if (newPassword == null || !newPassword.matches(PASSWORD_POLICY)) {
+            throw new BadRequestException("Password must be at least 8 characters and include upper, lower, number, and special character");
+        }
+        var user = resetToken.getUser();
+        user.setPassword(encoder.encode(newPassword));
+        userRepo.save(user);
+        resetToken.setUsed(true);
+        resetTokenRepo.save(resetToken);
+        return Map.of("message", "Password reset successfully. You can now login with your new password.");
     }
     private String normalizeEmail(String email){
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);

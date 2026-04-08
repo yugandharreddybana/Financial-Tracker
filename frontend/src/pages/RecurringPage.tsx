@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RefreshCw, Plus, Trash2, X, Zap } from "lucide-react";
+import { RefreshCw, Plus, Trash2, X, Zap, Pencil } from "lucide-react";
 import { RecurringTransaction, Category, BankAccount } from "../types";
 import { recurringService } from "../services/recurring.service";
 import { categoryService } from "../services/category.service";
@@ -24,7 +24,9 @@ const RecurringPage: React.FC = () => {
   const [accounts, setAccounts]     = useState<BankAccount[]>([]);
   const [loading, setLoading]       = useState(true);
   const [showModal, setShowModal]   = useState(false);
+  const [editingR, setEditingR]     = useState<RecurringTransaction | null>(null);
   const [deleteR, setDeleteR]       = useState<RecurringTransaction | null>(null);
+  const [cs, setCs] = useState("$");
 
   const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } = useForm<F>({
     resolver: zodResolver(schema),
@@ -40,15 +42,48 @@ const RecurringPage: React.FC = () => {
       const [r, c, a] = await Promise.all([recurringService.getAll(), categoryService.getAll(), bankAccountService.getAll()]);
       setRecurrings(Array.isArray(r.data) ? r.data : []);
       setCategories(Array.isArray(c.data) ? c.data : []);
-      setAccounts(Array.isArray(a.data) ? a.data : []);
+      const accs = Array.isArray(a.data) ? a.data : [];
+      setAccounts(accs);
+      if (accs.length > 0) setCs(accs[0].currencySymbol || "$");
     } catch { toast.error("Failed to load"); }
     finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
 
   const onSubmit = async (data: F) => {
-    try { await recurringService.create(data); toast.success("Recurring added!"); reset(); setShowModal(false); load(); }
+    try {
+      if (editingR) {
+        await recurringService.update(editingR.id, data);
+        toast.success("Recurring updated!");
+      } else {
+        await recurringService.create(data);
+        toast.success("Recurring added!");
+      }
+      reset(); setEditingR(null); setShowModal(false); load();
+    }
     catch { toast.error("Failed"); }
+  };
+
+  const openEdit = (r: RecurringTransaction) => {
+    setEditingR(r);
+    reset({
+      name: r.name,
+      amount: Number(r.amount),
+      type: r.type as "INCOME" | "EXPENSE",
+      frequency: r.frequency,
+      categoryId: r.categoryId,
+      bankAccountId: r.bankAccountId,
+      nextDueDate: r.nextDueDate,
+      endDate: r.endDate || "",
+      note: r.note || "",
+    });
+    setShowModal(true);
+  };
+
+  const openCreate = () => {
+    setEditingR(null);
+    reset({ type: "EXPENSE", frequency: "MONTHLY" });
+    setShowModal(true);
   };
   const handleDelete = async () => {
     if (!deleteR) return;
@@ -66,7 +101,7 @@ const RecurringPage: React.FC = () => {
   return (
     <div>
       <PageHeader title="Recurring Transactions" subtitle="Auto-scheduled income & expenses" actions={
-        <><button onClick={handleProcess} className="btn-secondary"><Zap size={15}/>Process Due</button><button onClick={() => setShowModal(true)} className="btn-primary"><Plus size={15}/>Add Recurring</button></>
+        <><button onClick={handleProcess} className="btn-secondary"><Zap size={15}/>Process Due</button><button onClick={openCreate} className="btn-primary"><Plus size={15}/>Add Recurring</button></>
       } />
       {loading ? <LoadingSpinner size="lg" className="py-32" /> : safeRecurrings.length === 0 ? (
         <EmptyState icon={RefreshCw} title="No recurring transactions" description="Add recurring transactions like salary, rent, or subscriptions" />
@@ -86,7 +121,8 @@ const RecurringPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <p className={clsx("text-sm font-bold", r.type==="INCOME"?"text-green-600":"text-red-600")}>{r.type==="INCOME"?"+":"-"}€{Number(r.amount).toFixed(2)}</p>
+                <p className={clsx("text-sm font-bold", r.type==="INCOME"?"text-green-600":"text-red-600")}>{r.type==="INCOME"?"+":"-"}{cs}{Number(r.amount).toFixed(2)}</p>
+                <button onClick={() => openEdit(r)} className="p-1.5 text-gray-300 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Pencil size={14} /></button>
                 <button onClick={() => setDeleteR(r)} className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
               </div>
             </div>
@@ -98,8 +134,8 @@ const RecurringPage: React.FC = () => {
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
           <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm animate-fade-in max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Add Recurring</h2>
-              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">{editingR ? "Edit Recurring" : "Add Recurring"}</h2>
+              <button onClick={() => { setShowModal(false); setEditingR(null); }} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -111,7 +147,7 @@ const RecurringPage: React.FC = () => {
               </div>
               <div><label className="label">Name</label><input {...register("name")} className="input" placeholder="e.g. Spotify Premium"/>{errors.name&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Amount (€)</label><input type="number" step="0.01" {...register("amount")} className="input" placeholder="0.00"/>{errors.amount&&<p className="text-xs text-red-500 mt-1">{errors.amount.message||"Required"}</p>}</div>
+                <div><label className="label">Amount ({cs})</label><input type="number" step="0.01" {...register("amount")} className="input" placeholder="0.00"/>{errors.amount&&<p className="text-xs text-red-500 mt-1">{errors.amount.message||"Required"}</p>}</div>
                 <div><label className="label">Next Due</label><input type="date" {...register("nextDueDate")} className="input"/>{errors.nextDueDate&&<p className="text-xs text-red-500 mt-1">Required</p>}</div>
               </div>
               <div><label className="label">End Date (optional)</label><input type="date" {...register("endDate")} className="input" /></div>
@@ -126,8 +162,8 @@ const RecurringPage: React.FC = () => {
               </div>
               <div><label className="label">Note</label><textarea {...register("note")} rows={2} className="input resize-none" placeholder="Optional"/></div>
               <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-secondary flex-1 justify-center">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="btn-primary flex-1 justify-center">{isSubmitting?<LoadingSpinner size="sm"/>:"Add"}</button>
+                <button type="button" onClick={() => { setShowModal(false); setEditingR(null); }} className="btn-secondary flex-1 justify-center">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="btn-primary flex-1 justify-center">{isSubmitting?<LoadingSpinner size="sm"/>:editingR?"Update":"Add"}</button>
               </div>
             </form>
           </div>

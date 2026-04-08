@@ -59,6 +59,9 @@ const LoginPage: React.FC = () => {
             <div>
               <label className="label">Password</label>
               <input {...register("password")} type="password" className="input" placeholder="••••••••" />
+              <div className="flex justify-end mt-1">
+                <Link to="/forgot-password" className="text-xs text-primary-600 hover:underline">Forgot password?</Link>
+              </div>
             </div>
             <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center">
               {isSubmitting ? <LoadingSpinner size="sm" /> : "Sign In"}

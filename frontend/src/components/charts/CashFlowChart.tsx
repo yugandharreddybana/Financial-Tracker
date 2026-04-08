@@ -5,9 +5,9 @@ import {
 } from "recharts";
 
 interface ForecastDay { date: string; projectedBalance: number; eventDescription?: string; }
-interface Props { data: ForecastDay[]; }
+interface Props { data: ForecastDay[]; currencySymbol?: string; }
 
-const CashFlowChart: React.FC<Props> = ({ data }) => {
+const CashFlowChart: React.FC<Props> = ({ data, currencySymbol = "$" }) => {
   const safe = Array.isArray(data) ? data : [];
 
   if (safe.length === 0) {
@@ -44,11 +44,11 @@ const CashFlowChart: React.FC<Props> = ({ data }) => {
               tick={{ fontSize: 10, fill: "#94a3b8" }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `€${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+              tickFormatter={(v) => `${currencySymbol}${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
             />
             <ReferenceLine y={0} stroke="#EF4444" strokeDasharray="4 2" strokeWidth={1} />
             <Tooltip
-              formatter={(v: any) => [`€${Number(v).toFixed(2)}`, "Projected Balance"]}
+              formatter={(v: any) => [`${currencySymbol}${Number(v).toFixed(2)}`, "Projected Balance"]}
               contentStyle={{
                 borderRadius: "12px",
                 border: "1px solid #e2e8f0",

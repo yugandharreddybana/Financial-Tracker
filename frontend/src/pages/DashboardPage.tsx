@@ -119,6 +119,7 @@ const DashboardPage: React.FC = () => {
 
   const { stats, cashFlow } = data;
   const selectedAccount = accounts.find(a => a.id === selectedAccountId);
+  const cs = selectedAccount?.currencySymbol || accounts[0]?.currencySymbol || "$";
 
   return (
     <div id="dashboard-export-root" className="space-y-5">
@@ -153,7 +154,7 @@ const DashboardPage: React.FC = () => {
             {alerts.map((b) => (
               <div key={b.id} className="flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
                 <div className="flex items-center gap-2"><span className="w-6 h-6 rounded-lg flex items-center justify-center text-base" style={{ backgroundColor: b.categoryColor + "20" }}>{b.categoryIcon}</span><span className="font-medium">{b.categoryName}</span></div>
-                <div className="text-right"><p className="font-semibold">{Math.round(b.percentage)}% used</p><p className="text-[11px]">{b.status === "OVER" ? "Over by" : "Remaining"} EUR {Math.abs(b.remainingAmount).toFixed(2)}</p></div>
+                <div className="text-right"><p className="font-semibold">{Math.round(b.percentage)}% used</p><p className="text-[11px]">{b.status === "OVER" ? "Over by" : "Remaining"} {cs}{Math.abs(b.remainingAmount).toFixed(2)}</p></div>
               </div>
             ))}
           </div>
@@ -161,15 +162,15 @@ const DashboardPage: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Income (this month)" value={stats.totalIncome} trend="Stable" variant="positive" />
-        <StatCard label="Expenses (this month)" value={stats.totalExpenses} trend="Track budgets" variant="negative" />
-        <StatCard label="Account balance" value={selectedAccount ? Number(selectedAccount.currentBalance) : 0} trend={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "Available funds" : "Overdraft"} variant={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "positive" : "negative"} />
+        <StatCard label="Income (this month)" value={stats.totalIncome} trend="Stable" variant="positive" currencySymbol={cs} />
+        <StatCard label="Expenses (this month)" value={stats.totalExpenses} trend="Track budgets" variant="negative" currencySymbol={cs} />
+        <StatCard label="Account balance" value={selectedAccount ? Number(selectedAccount.currentBalance) : 0} trend={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "Available funds" : "Overdraft"} variant={selectedAccount && Number(selectedAccount.currentBalance) >= 0 ? "positive" : "negative"} currencySymbol={cs} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card p-4 lg:col-span-2"><MonthlyTrendChart data={stats.monthlyTrend} /></div>
-        <div className="card p-4"><CategoryPieChart data={stats.topCategories} /></div>
+        <div className="card p-4 lg:col-span-2"><MonthlyTrendChart data={stats.monthlyTrend} currencySymbol={cs} /></div>
+        <div className="card p-4"><CategoryPieChart data={stats.topCategories} currencySymbol={cs} /></div>
       </div>
-      <div className="card p-4"><CashFlowChart data={cashFlow.dailyForecast} /></div>
+      <div className="card p-4"><CashFlowChart data={cashFlow.dailyForecast} currencySymbol={cs} /></div>
 
       {showQuickAdd && (
         <TransactionModal

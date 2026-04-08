@@ -9,6 +9,7 @@ import CashFlowChart from "../components/charts/CashFlowChart";
 import clsx from "clsx";
 import { bankAccountService } from "../services/bankAccount.service";
 import toast from "react-hot-toast";
+import { formatCurrency, formatCompact } from "../utils/currency";
 
 const NetWorthPage: React.FC = () => {
   const [netWorth, setNetWorth] = useState<NetWorth | null>(null);
@@ -17,7 +18,11 @@ const NetWorthPage: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<number | "ALL">("ALL");
   const [loading, setLoading] = useState(true);
 
-  const fmt = (v: number) => `€${Number(v).toLocaleString("en-IE", { minimumFractionDigits: 2 })}`;
+  const selectedAccount = selectedAccountId !== "ALL" ? accounts.find(a => a.id === selectedAccountId) : null;
+  const currencyCode = selectedAccount?.currencyCode || (accounts.length > 0 ? accounts[0].currencyCode : undefined);
+  const currencySymbol = selectedAccount?.currencySymbol || (accounts.length > 0 ? accounts[0].currencySymbol : undefined);
+  const fmt = (v: number) => formatCurrency(v, currencyCode, currencySymbol);
+  const fmtCompact = (v: number) => formatCompact(v, currencySymbol || "$");
   const statusColor = (s: string) =>
     ({ HEALTHY: "text-green-600 bg-green-50 dark:bg-green-950", WARNING: "text-orange-600 bg-orange-50 dark:bg-orange-950", CRITICAL: "text-red-600 bg-red-50 dark:bg-red-950" }[s] || "");
 
@@ -106,7 +111,7 @@ const NetWorthPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="card p-5">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Net Worth History</h3>
-          <NetWorthChart data={netWorth.history || []} />
+          <NetWorthChart data={netWorth.history || []} currencySymbol={currencySymbol} />
         </div>
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">

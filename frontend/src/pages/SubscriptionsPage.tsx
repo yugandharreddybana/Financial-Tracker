@@ -103,7 +103,7 @@ const SubscriptionsPage: React.FC = () => {
           <div className="flex items-center justify-between mb-3 text-xs text-slate-500 dark:text-slate-400">
             <span>{items.length} recurring merchants detected</span>
             <span>
-              Approx. monthly spend: <span className="font-semibold">€{total.toFixed(2)}</span>
+              Approx. monthly spend: <span className="font-semibold">{items[0]?.currencySymbol || "$"}{total.toFixed(2)}</span>
             </span>
           </div>
           <div className="divide-y divide-slate-100 dark:divide-gray-800">

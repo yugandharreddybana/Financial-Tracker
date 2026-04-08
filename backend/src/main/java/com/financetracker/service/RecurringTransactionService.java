@@ -32,6 +32,21 @@ public class RecurringTransactionService {
     @Transactional
     public void delete(Long id){var u=userService.getCurrentUser();var r=rRepo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Not found"));rRepo.delete(r);}
     @Transactional
+    public Map<String,Object> update(Long id, RecurringRequest req){
+        var u=userService.getCurrentUser();
+        var r=rRepo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Not found"));
+        if(req.getName()!=null) r.setName(req.getName());
+        if(req.getAmount()!=null) r.setAmount(BigDecimal.valueOf(req.getAmount()));
+        if(req.getType()!=null) r.setType(Transaction.TransactionType.valueOf(req.getType()));
+        if(req.getFrequency()!=null) r.setFrequency(RecurringTransaction.Frequency.valueOf(req.getFrequency()));
+        if(req.getNextDueDate()!=null && !req.getNextDueDate().isBlank()) r.setNextDueDate(LocalDate.parse(req.getNextDueDate()));
+        if(req.getEndDate()!=null){r.setEndDate(req.getEndDate().isBlank()?null:LocalDate.parse(req.getEndDate()));}
+        if(req.getNote()!=null) r.setNote(req.getNote());
+        if(req.getCategoryId()!=null){var cat=catRepo.findById(req.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Category not found"));r.setCategory(cat);}
+        if(req.getBankAccountId()!=null){var bank=bankRepo.findById(req.getBankAccountId()).orElse(null);r.setBankAccount(bank);}
+        return build(rRepo.save(r));
+    }
+    @Transactional
     public Map<String,Object> processDue(){
         var due=rRepo.findByActiveAndNextDueDateLessThanEqual(true,LocalDate.now());
         for(var r:due){

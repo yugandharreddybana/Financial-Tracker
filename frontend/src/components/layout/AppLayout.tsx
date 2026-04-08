@@ -3,9 +3,11 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import AIChatWidget from "../chat/AIChatWidget";
+import { useIdleLogout } from "../../hooks/useIdleLogout";
 
 const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  useIdleLogout();
 
   return (
     // h-screen + overflow-hidden on the root ensures neither the sidebar nor
@@ -19,7 +21,7 @@ const AppLayout: React.FC = () => {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Topbar onMenuToggle={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-5">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5">
           <Outlet />
         </main>
       </div>

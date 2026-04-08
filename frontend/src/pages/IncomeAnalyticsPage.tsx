@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import PageHeader from "../components/ui/PageHeader";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import api from "../services/api";
+import { bankAccountService } from "../services/bankAccount.service";
+import { BankAccount } from "../types";
 import toast from "react-hot-toast";
 import { TrendingUp, Wallet, PiggyBank, Calendar } from "lucide-react";
 import {
@@ -33,23 +35,6 @@ interface IncomeData {
   ytdSavingsRate: number;
 }
 
-const fmtEur = (v: number) =>
-  v.toLocaleString("en-IE", { style: "currency", currency: "EUR", minimumFractionDigits: 0 });
-
-const CUSTOM_TOOLTIP = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-white dark:bg-gray-900 shadow-lg rounded-xl px-3 py-2 border border-gray-100 dark:border-gray-800 text-xs">
-      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.name} style={{ color: p.color }}>
-          {p.name}: {fmtEur(p.value)}
-        </p>
-      ))}
-    </div>
-  );
-};
-
 const StatPill: React.FC<{
   icon: React.ReactNode;
   label: string;
@@ -76,12 +61,21 @@ const IncomeAnalyticsPage: React.FC = () => {
   const [data, setData] = useState<IncomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [salaryDelta, setSalaryDelta] = useState(0); // -30 to +50 %
+  const [cs, setCs] = useState("$");
+
+  const fmtEur = (v: number) =>
+    `${cs}${v.toLocaleString("en-IE", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.get<IncomeData>("/income/breakdown");
+      const [res, accRes] = await Promise.all([
+        api.get<IncomeData>("/income/breakdown"),
+        bankAccountService.getAll(),
+      ]);
       setData(res.data);
+      const accs: BankAccount[] = Array.isArray(accRes.data) ? accRes.data : [];
+      if (accs.length > 0) setCs(accs[0].currencySymbol || "$");
     } catch {
       toast.error("Failed to load income analytics");
     } finally {
@@ -163,8 +157,20 @@ const IncomeAnalyticsPage: React.FC = () => {
             <BarChart data={data.trend} barCategoryGap="30%">
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `€${(v / 1000).toFixed(0)}k`} />
-              <Tooltip content={<CUSTOM_TOOLTIP />} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${cs}${(v / 1000).toFixed(0)}k`} />
+              <Tooltip content={({ active, payload, label }: any) => {
+                if (!active || !payload?.length) return null;
+                return (
+                  <div className="bg-white dark:bg-gray-900 shadow-lg rounded-xl px-3 py-2 border border-gray-100 dark:border-gray-800 text-xs">
+                    <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
+                    {payload.map((p: any) => (
+                      <p key={p.name} style={{ color: p.color }}>
+                        {p.name}: {fmtEur(p.value)}
+                      </p>
+                    ))}
+                  </div>
+                );
+              }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar dataKey="income" fill="#10B981" radius={[4, 4, 0, 0]} name="Income" />
               <Bar dataKey="expenses" fill="#EF4444" radius={[4, 4, 0, 0]} name="Expenses" />

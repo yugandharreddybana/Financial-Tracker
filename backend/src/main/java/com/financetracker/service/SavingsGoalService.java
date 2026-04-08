@@ -34,6 +34,19 @@ public class SavingsGoalService {
     }
     @Transactional
     public void delete(Long id){var u=userService.getCurrentUser();var g=repo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Not found"));repo.delete(g);}
+    @Transactional
+    public Map<String,Object> update(Long id, SavingsGoalRequest req){
+        var u=userService.getCurrentUser();
+        var g=repo.findById(id).filter(x->x.getUser().getId().equals(u.getId())).orElseThrow(()->new ResourceNotFoundException("Goal not found"));
+        if(req.getName()!=null) g.setName(req.getName());
+        if(req.getIcon()!=null) g.setIcon(req.getIcon());
+        if(req.getColor()!=null) g.setColor(req.getColor());
+        if(req.getTargetAmount()!=null) g.setTargetAmount(BigDecimal.valueOf(req.getTargetAmount()));
+        if(req.getCurrentAmount()!=null) g.setCurrentAmount(BigDecimal.valueOf(req.getCurrentAmount()));
+        if(req.getTargetDate()!=null && !req.getTargetDate().isEmpty()) g.setTargetDate(LocalDate.parse(req.getTargetDate()));
+        g.setCompleted(g.getCurrentAmount().compareTo(g.getTargetAmount())>=0);
+        return build(repo.save(g));
+    }
     private Map<String,Object> build(SavingsGoal g){
         BigDecimal pct=g.getTargetAmount().compareTo(BigDecimal.ZERO)>0?g.getCurrentAmount().multiply(BigDecimal.valueOf(100)).divide(g.getTargetAmount(),2,RoundingMode.HALF_UP):BigDecimal.ZERO;
         var m=new LinkedHashMap<String,Object>();

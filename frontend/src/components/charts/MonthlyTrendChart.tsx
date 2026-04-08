@@ -5,9 +5,9 @@ import {
 } from "recharts";
 
 interface DataPoint { month: string; income: number; expense: number; }
-interface Props { data: DataPoint[]; }
+interface Props { data: DataPoint[]; currencySymbol?: string; }
 
-const MonthlyTrendChart: React.FC<Props> = ({ data }) => {
+const MonthlyTrendChart: React.FC<Props> = ({ data, currencySymbol = "$" }) => {
   const safe = Array.isArray(data) ? data : [];
 
   if (safe.length === 0) {
@@ -47,10 +47,10 @@ const MonthlyTrendChart: React.FC<Props> = ({ data }) => {
               tick={{ fontSize: 11, fill: "#94a3b8" }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `€${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+              tickFormatter={(v) => `${currencySymbol}${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
             />
             <Tooltip
-              formatter={(v: any) => [`€${Number(v).toFixed(2)}`]}
+              formatter={(v: any) => [`${currencySymbol}${Number(v).toFixed(2)}`]}
               contentStyle={{
                 borderRadius: "12px",
                 border: "1px solid #e2e8f0",

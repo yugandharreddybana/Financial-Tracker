@@ -23,6 +23,7 @@ import LoansPage from "./pages/LoansPage";
 import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import LandingPage from "./pages/LandingPage";
 import LoanDetailPage from "./pages/LoanDetailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 const App: React.FC = () => {
   useTheme(); // Ensure saved theme is applied on all pages (login, register, etc.)
@@ -32,6 +33,7 @@ const App: React.FC = () => {
       <Route path="/" element={!token ? <LandingPage /> : <Navigate to="/dashboard" replace />} />
       <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
       <Route path="/register" element={!token ? <RegisterPage /> : <Navigate to="/dashboard" replace />} />
+      <Route path="/forgot-password" element={!token ? <ForgotPasswordPage /> : <Navigate to="/dashboard" replace />} />
       <Route element={<AppLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/income" element={<IncomeAnalyticsPage />} />

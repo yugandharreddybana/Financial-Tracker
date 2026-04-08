@@ -32,4 +32,9 @@ public class BudgetController {
         svc.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody BudgetRequest req) {
+        return ResponseEntity.ok(svc.update(id, req));
+    }
 }

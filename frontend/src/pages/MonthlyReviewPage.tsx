@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import PageHeader from "../components/ui/PageHeader";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import api from "../services/api";
 import { aiService } from "../services/ai.service";
+import { bankAccountService } from "../services/bankAccount.service";
+import { BankAccount } from "../types";
 import toast from "react-hot-toast";
 import { CalendarRange, RefreshCw, Sparkles } from "lucide-react";
 
 interface ReviewCategory { categoryName:string; categoryIcon:string; categoryColor:string; amount:number; percentage:number; }
 interface ReviewTx { id:number; date:string; description:string; type:"INCOME"|"EXPENSE"; amount:number; categoryName:string; categoryIcon:string; categoryColor:string; }
 interface ReviewSummary { from:string; to:string; totalIncome:number; totalExpenses:number; netSavings:number; savingsRate:number; avgDailySpend:number; topCategories:ReviewCategory[]; largestTransactions:ReviewTx[]; }
-
-const fmtEur = (v: number|undefined|null) => {
-  const safe = typeof v==="number" && !isNaN(v) ? v : 0;
-  return safe.toLocaleString("en-IE",{style:"currency",currency:"EUR",minimumFractionDigits:0});
-};
 
 const MonthlyReviewPage: React.FC = () => {
   const today = new Date();
@@ -26,6 +23,19 @@ const MonthlyReviewPage: React.FC = () => {
   const [improvements, setImprovements] = useState<string[]>([]);
   const [note, setNote]         = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [cs, setCs] = useState("$");
+
+  useEffect(() => {
+    bankAccountService.getAll().then(res => {
+      const accs: BankAccount[] = Array.isArray(res.data) ? res.data : [];
+      if (accs.length > 0) setCs(accs[0].currencySymbol || "$");
+    }).catch(() => {});
+  }, []);
+
+  const fmt = (v: number|undefined|null) => {
+    const safe = typeof v==="number" && !isNaN(v) ? v : 0;
+    return `${cs}${safe.toLocaleString("en-IE",{minimumFractionDigits:0,maximumFractionDigits:0})}`;
+  };
 
   const runReview = async () => {
     if (!from||!to) { toast.error("Please select both dates"); return; }
@@ -46,7 +56,11 @@ const MonthlyReviewPage: React.FC = () => {
     } catch { toast.error("Failed to load review"); }
     finally { setLoading(false); }
   };
-  useEffect(() => { runReview(); }, []); // eslint-disable-line
+  useEffect(() => {
+    if (!from || !to || from > to) return;
+    const timer = setTimeout(() => { runReview(); }, 300);
+    return () => clearTimeout(timer);
+  }, [from, to]); // eslint-disable-line
 
   const handleAskAi = async () => {
       if (!summary) { toast.error("Run a review first"); return; }
@@ -84,10 +98,10 @@ const MonthlyReviewPage: React.FC = () => {
       {summary && !loading && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total income</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.totalIncome)}</p></div>
-            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total expenses</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.totalExpenses)}</p></div>
-            <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Net savings</p><p className={`text-lg font-bold ${summary.netSavings>=0?"text-emerald-600":"text-red-600"}`}>{fmtEur(summary.netSavings)}</p></div>
-            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Avg daily spend</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmtEur(summary.avgDailySpend)}</p><p className="text-[11px] text-gray-400 mt-0.5">Savings rate: {summary.savingsRate}%</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total income</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalIncome)}</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Total expenses</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.totalExpenses)}</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 mb-1">Net savings</p><p className={`text-lg font-bold ${summary.netSavings>=0?"text-emerald-600":"text-red-600"}`}>{fmt(summary.netSavings)}</p></div>
+            <div className="card p-4"><p className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">Avg daily spend</p><p className="text-lg font-bold text-gray-900 dark:text-white">{fmt(summary.avgDailySpend)}</p><p className="text-[11px] text-gray-400 mt-0.5">Savings rate: {summary.savingsRate}%</p></div>
           </div>
           <div className="card p-4">
             <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">Monthly note</p>
@@ -102,7 +116,7 @@ const MonthlyReviewPage: React.FC = () => {
                   {summary.topCategories.map(c=>(
                     <div key={c.categoryName} className="flex items-center justify-between">
                       <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:c.categoryColor+"20"}}>{c.categoryIcon}</div><span className="font-medium text-gray-800 dark:text-gray-200">{c.categoryName}</span></div>
-                      <div className="text-right"><p className="font-semibold text-gray-900 dark:text-white">{fmtEur(c.amount)}</p><p className="text-[11px] text-gray-400">{c.percentage}% of spend</p></div>
+                      <div className="text-right"><p className="font-semibold text-gray-900 dark:text-white">{fmt(c.amount)}</p><p className="text-[11px] text-gray-400">{c.percentage}% of spend</p></div>
                     </div>
                   ))}
                 </div>
@@ -115,7 +129,7 @@ const MonthlyReviewPage: React.FC = () => {
                   {summary.largestTransactions.map(t=>(
                     <div key={t.id} className="flex items-center justify-between">
                       <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{backgroundColor:t.categoryColor+"20"}}>{t.categoryIcon}</div><div><p className="font-medium text-gray-800 dark:text-gray-200">{t.description}</p><p className="text-[11px] text-gray-400">{t.date} · {t.categoryName} · {t.type}</p></div></div>
-                      <p className={`font-semibold ${t.type==="INCOME"?"text-emerald-600":"text-red-600"}`}>{t.type==="INCOME"?"+":"-"}{fmtEur(t.amount)}</p>
+                      <p className={`font-semibold ${t.type==="INCOME"?"text-emerald-600":"text-red-600"}`}>{t.type==="INCOME"?"+":"-"}{fmt(t.amount)}</p>
                     </div>
                   ))}
                 </div>

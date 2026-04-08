@@ -4,9 +4,9 @@ import {
 } from "recharts";
 
 interface Category { name: string; color: string; icon: string; amount: number; percentage: number; }
-interface Props { data: Category[]; }
+interface Props { data: Category[]; currencySymbol?: string; }
 
-const CategoryPieChart: React.FC<Props> = ({ data }) => {
+const CategoryPieChart: React.FC<Props> = ({ data, currencySymbol = "$" }) => {
   const safe = Array.isArray(data) ? data.filter((d) => d.amount > 0) : [];
 
   if (safe.length === 0) {
@@ -40,7 +40,7 @@ const CategoryPieChart: React.FC<Props> = ({ data }) => {
               ))}
             </Pie>
             <Tooltip
-              formatter={(v: any, name: any) => [`€${Number(v).toFixed(2)}`, name]}
+              formatter={(v: any, name: any) => [`${currencySymbol}${Number(v).toFixed(2)}`, name]}
               contentStyle={{
                 borderRadius: "12px",
                 border: "1px solid #e2e8f0",

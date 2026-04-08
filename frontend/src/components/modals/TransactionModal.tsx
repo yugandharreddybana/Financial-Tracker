@@ -279,8 +279,8 @@ const TransactionModal: React.FC<Props> = ({ isOpen, transaction, onClose }) => 
                   <RefreshCw size={15} />
                   Make this a recurring transaction
                 </span>
-                <span className={clsx("w-9 h-5 rounded-full transition-colors relative", isRecurring ? "bg-indigo-600" : "bg-gray-300")}>
-                  <span className={clsx("absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform", isRecurring ? "translate-x-4" : "translate-x-0.5")} />
+                <span className={clsx("w-9 h-5 rounded-full transition-colors relative inline-flex items-center shrink-0", isRecurring ? "bg-indigo-600" : "bg-gray-300")}>
+                  <span className={clsx("absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform", isRecurring ? "translate-x-[16px]" : "translate-x-0")} />
                 </span>
               </button>
 

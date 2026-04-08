@@ -13,6 +13,7 @@ export const recurringService = {
     return { data: toArray(res.data) };
   },
   create: (d: any) => api.post("/recurring", d),
+  update: (id: number, d: any) => api.put(`/recurring/${id}`, d),
   delete: (id: number) => api.delete(`/recurring/${id}`),
   processDue: () => api.post("/recurring/process-due"),
 };

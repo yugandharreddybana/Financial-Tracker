@@ -12,4 +12,5 @@ public class SavingsGoalController {
     @PostMapping public ResponseEntity<Map<String,Object>> create(@RequestBody SavingsGoalRequest req){return ResponseEntity.status(HttpStatus.CREATED).body(svc.create(req));}
     @PostMapping("/{id}/contribute") public ResponseEntity<Map<String,Object>> contribute(@PathVariable Long id,@RequestBody ContributeRequest req){return ResponseEntity.ok(svc.contribute(id,req));}
     @DeleteMapping("/{id}") public ResponseEntity<Void> delete(@PathVariable Long id){svc.delete(id);return ResponseEntity.noContent().build();}
+    @PutMapping("/{id}") public ResponseEntity<Map<String,Object>> update(@PathVariable Long id,@RequestBody SavingsGoalRequest req){return ResponseEntity.ok(svc.update(id,req));}
 }

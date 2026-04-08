@@ -49,6 +49,23 @@ public class BudgetService {
         budgetRepo.delete(b);
     }
 
+    @Transactional
+    public Map<String, Object> update(Long id, BudgetRequest req) {
+        var u = userService.getCurrentUser();
+        var b = budgetRepo.findById(id)
+                .filter(x -> x.getUser().getId().equals(u.getId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        if (req.getCategoryId() != null) {
+            var cat = catRepo.findById(req.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            b.setCategory(cat);
+        }
+        if (req.getLimitAmount() != null) b.setLimitAmount(BigDecimal.valueOf(req.getLimitAmount()));
+        if (req.getMonth() != null) b.setMonth(req.getMonth());
+        if (req.getYear() != null) b.setYear(req.getYear());
+        return buildResponse(budgetRepo.save(b), u);
+    }
+
     /**
      * Returns only budgets that are approaching or over for the current month/year.
      */
